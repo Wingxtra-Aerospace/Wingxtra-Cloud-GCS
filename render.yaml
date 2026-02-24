@@ -1,10 +1,15 @@
+previews:
+  generation: automatic
+
 services:
   - type: web
     name: wingxtra-cloud-gcs
     runtime: static
     buildCommand: npm install && npm run build
-    staticPublishPath: build
-    pullRequestPreviewsEnabled: true
+    staticPublishPath: ./build
+    envVars:
+      - key: NODE_VERSION
+        value: 20
     routes:
       - type: rewrite
         source: /*
