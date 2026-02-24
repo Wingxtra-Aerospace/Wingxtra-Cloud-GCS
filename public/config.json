@@ -38,8 +38,11 @@
          "help":"https://cloud.ardupilot.org/de-what-is.html"
       }
    },
-   "/** * This is for disable experimental features. * If a feature is not explicitly mentioned or has a value of true",
-   "it is considered to be enabled. */""CONST_FEATURE":{
+   /**
+    * This is for disable experimental features.
+    * If a feature is not explicitly mentioned or has a value of true, it is considered to be enabled.
+    */
+   "CONST_FEATURE":{
       "DISABLE_UNIT_NAMING":false,
       "DISABLE_UDPPROXY_UPDATE":false,
       "DISABLE_SWARM":false,
@@ -61,6 +64,7 @@
       ],
       "DEFAULT_LANGUAGE":"en"
    },
+   
    "CONST_MAPBOX_ACCESS_TOKEN":"pk.eyJ1IjoiZXNhc3VqbnIiLCJhIjoiY203cTh1dGVjMHE1NjJxcXlhcDA2ZGJ3MyJ9.N5bylT9_go6TLi_s8Ve5uw",
    "CONST_MAPBOX_STYLE":"mapbox://styles/mapbox/standard-satellite",
    "CONST_MAPBOX_3D_BUILDING_OPACITY":0.45,
@@ -71,6 +75,10 @@
    "CONST_MAP_LEAFLET_URL":"https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg?api_key=XXXXXXX",
    "CONST_MAP_LEAFLET_URL":"https://tiles.stadiamaps.com/data/imagery/{z}/{x}/{y}.jpg?api_key=X",
    "CONST_MAP_LEAFLET_URL":"https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png?api_key=X",
+
+   /**
+    * WEBRTC Video Streaming Settings
+    */
    "CONST_ICE_SERVERS":[
       {
          "urls":"turn:cloud.ardupilot.org",
