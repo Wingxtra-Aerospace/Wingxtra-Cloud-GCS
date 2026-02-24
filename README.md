@@ -93,32 +93,3 @@ https://github.com/DroneEngage/droneengage_webclient
 
 
 
-## DroneEngage Airgap Proxy (Render)
-
-This repo includes a standalone Node proxy service under `proxy/` for forwarding browser requests to DroneEngage airgap without direct browser-to-airgap CORS issues.
-
-### Proxy target
-- Incoming requests: `https://<your-proxy-domain>/...`
-- Forwarded to: `https://airgap.droneengage.com:19408/...`
-
-### Deploy `proxy/` to Render as a Web Service
-- Root directory: `proxy`
-- Build command: `npm install`
-- Start command: `node server.js`
-
-### Runtime behavior
-- CORS allows origin: `https://wingxtra-cloud-gcs.onrender.com`
-- CORS methods: `GET,POST,PUT,DELETE,OPTIONS`
-- CORS headers: `Content-Type, Authorization`
-- Credentials enabled: `true`
-- Preflight (`OPTIONS`) on all routes responds `204`
-- HTTP and WebSocket traffic is proxied to airgap target
-
-### Wingxtra config
-After deploying the proxy, update `public/config.json`:
-- `CONST_PROD_MODE_IP` => your proxy domain
-- `CONST_PROD_MODE_PORT` => `443`
-
-This repository is currently set to:
-- `CONST_PROD_MODE_IP`: `wingxtra-airgap-proxy.onrender.com`
-- `CONST_PROD_MODE_PORT`: `443`
