@@ -45,6 +45,9 @@ export let CONST_ACCOUNT_URL_ENABLE = true;
 
 export let CONST_WEBSOCKET_BRIDGE_PORT = 8812;
 
+// Optional dedicated HTTP API base for health checks (example: https://host:port/h)
+export let CONST_HEALTH_API_BASE_URL = '';
+
 // CHOOSE YOUR MAP SOURCE
 export let CONST_MAP_LEAFLET_URL = "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHNhYWQiLCJhIjoiY2tqZnIwNXRuMndvdTJ4cnV0ODQ4djZ3NiJ9.LKojA3YMrG34L93jRThEGQ";
 //export let CONST_MAP_LEAFLET_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -144,6 +147,7 @@ export function fn_applyRuntimeConfig(data) {
         if (data.CONST_WEBCONNECTOR_SECURE !== undefined) CONST_WEBCONNECTOR_SECURE = data.CONST_WEBCONNECTOR_SECURE;
         if (data.CONST_WEBCONNECTOR_BASE_PATH !== undefined) CONST_WEBCONNECTOR_BASE_PATH = data.CONST_WEBCONNECTOR_BASE_PATH;
         if (data.CONST_WEBCONNECTOR_ENABLE !== undefined) CONST_WEBCONNECTOR_ENABLE = data.CONST_WEBCONNECTOR_ENABLE;
+        if (data.CONST_HEALTH_API_BASE_URL !== undefined) CONST_HEALTH_API_BASE_URL = data.CONST_HEALTH_API_BASE_URL;
         
         if (data.CONST_ANDRUAV_URL_ENABLE !== undefined) CONST_ANDRUAV_URL_ENABLE = data.CONST_ANDRUAV_URL_ENABLE;
         if (data.CONST_ACCOUNT_URL_ENABLE !== undefined) CONST_ACCOUNT_URL_ENABLE = data.CONST_ACCOUNT_URL_ENABLE;
