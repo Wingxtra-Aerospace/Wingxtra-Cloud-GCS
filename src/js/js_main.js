@@ -3424,6 +3424,7 @@ export function fn_on_ready() {
 
 		js_eventEmitter.fn_subscribe(js_event.EE_mapMissionUpdate, this, fn_syncPlannerMissionIn3D);
 		js_eventEmitter.fn_subscribe(js_event.EE_onPlanToggle, this, fn_syncPlannerMissionIn3D);
+		js_eventEmitter.fn_subscribe(js_event.EE_onShapeCreated, this, fn_syncPlannerMissionIn3D);
 		js_eventEmitter.fn_subscribe(js_event.EE_onShapeEdited, this, fn_syncPlannerMissionIn3D);
 		js_eventEmitter.fn_subscribe(js_event.EE_onShapeDeleted, this, fn_syncPlannerMissionIn3D);
 		fn_syncPlannerMissionIn3D();
