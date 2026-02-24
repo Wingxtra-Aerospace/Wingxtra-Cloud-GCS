@@ -34,24 +34,30 @@ class CAndruavAuth {
         this.m_accesscode = '';
         this.m_retry_login = true;
         this.m_retry_handle = null;
+        this.m_retry_attempts = 0;
+        this.m_max_retry_attempts = 5;
 
         window._localserverIP = '127.0.0.1';
         window._localserverPort = 9211;
 
         this._m_ver = '5.0.0';
-        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_IP
-            : js_siteConfig.CONST_PROD_MODE_IP;
-        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_PORT
-            : js_siteConfig.CONST_PROD_MODE_PORT;
-        this._m_auth_ports = this._m_auth_port; // Legacy support
+        this.fn_refreshAuthEndpoint();
         this._m_perm = 0;
         this._m_permissions_ = '';
         this._m_session_ID = null;
         this._m_party_ID = null;
         this._m_logined = false;
         this.C_ERR_SUCCESS_DISPLAY_MESSAGE = 1001; // Legacy error code
+    }
+
+    fn_refreshAuthEndpoint() {
+        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
+            ? js_siteConfig.CONST_TEST_MODE_IP
+            : js_siteConfig.CONST_PROD_MODE_IP;
+        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
+            ? js_siteConfig.CONST_TEST_MODE_PORT
+            : js_siteConfig.CONST_PROD_MODE_PORT;
+        this._m_auth_ports = this._m_auth_port;
     }
 
     fn_isPluginEnabled() {
@@ -244,6 +250,7 @@ class CAndruavAuth {
      */
     async fn_do_loginAccount(p_userName, p_accessCode) {
         js_eventEmitter.fn_dispatch(js_event.EE_Auth_Login_In_Progress, null);
+        this.fn_refreshAuthEndpoint();
 
         try {
             const lsPluginEnabled = js_localStorage.fn_getWebConnectorEnabled();
@@ -323,6 +330,7 @@ class CAndruavAuth {
 
             const parsed = fn_parseLoginResponse(response);
             if (parsed.ok === true) {
+                this.m_retry_attempts = 0;
                 this._m_logined = true;
                 this._m_session_ID = parsed.sessionId;
                 // `partyId` is only returned by WebConnector login (/w/wl/) as `plugin_party_id` (preferred) / `pid` (legacy).
@@ -366,9 +374,17 @@ class CAndruavAuth {
         }
 
         if (this.m_retry_login) {
+            this.m_retry_attempts += 1;
+            if (this.m_retry_attempts > this.m_max_retry_attempts) {
+                this.m_retry_attempts = 0;
+                console.warn('[Auth] retry limit reached; stop auto-retry');
+                return false;
+            }
+
+            const delay = Math.min(4000 * this.m_retry_attempts, 15000);
             this.m_retry_handle = setTimeout(
                 () => this.fn_do_loginAccount(p_userName, p_accessCode),
-                4000
+                delay
             );
         }
         return false;
