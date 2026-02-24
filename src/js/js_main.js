@@ -3377,10 +3377,13 @@ export function fn_submitShapes() {
 
 
 let fn_on_ready_called = false;
+let fn_on_ready_last_map_editor_mode = null;
 export function fn_on_ready() {
 
-	if (fn_on_ready_called === true) return;
+	const c_isMapEditor = (js_globals.CONST_MAP_EDITOR === true);
+	if ((fn_on_ready_called === true) && (fn_on_ready_last_map_editor_mode === c_isMapEditor)) return;
 	fn_on_ready_called = true;
+	fn_on_ready_last_map_editor_mode = c_isMapEditor;
 
 	$(function () {
 		$('head').append('<link href="/images/de/favicon.ico" rel="shortcut icon" type="image/x-icon" />');
