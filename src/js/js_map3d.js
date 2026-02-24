@@ -551,7 +551,25 @@ class CAndruavMap3D {
     }
 
     async fn_initMap(containerId) {
-        if (this.m_isReady === true || this.m_map != null) return;
+        const targetContainer = document.getElementById(containerId);
+        if (!targetContainer) return;
+
+        if (this.m_map != null) {
+            const currentContainer = this.m_map.getContainer ? this.m_map.getContainer() : null;
+            if (this.m_isReady === true && currentContainer === targetContainer) return;
+
+            this.fn_clearMissionAltitudeMarkers();
+            this.fn_clearAltitudePathOverlay();
+            try {
+                this.m_map.remove();
+            } catch (_) {
+                // Ignore remove failures and recreate map instance.
+            }
+            this.m_map = null;
+            this.m_isReady = false;
+            this.m_pendingViewState = null;
+            this.m_missionLayerHandlersBound = false;
+        }
 
         const token = js_siteConfig.CONST_MAPBOX_ACCESS_TOKEN;
         if (!token) {
