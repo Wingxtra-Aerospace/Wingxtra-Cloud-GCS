@@ -6,8 +6,6 @@ import { js_localStorage } from './js_localStorage.js';
 import {
     fn_buildAuthUrl,
     fn_buildAuthUrlEx,
-    fn_buildHealthBaseUrl,
-    fn_buildHealthBaseUrlEx,
     fn_buildLoginPayload,
     fn_buildPluginSessionPayload,
     fn_parseLoginResponse,
@@ -232,13 +230,10 @@ class CAndruavAuth {
     }
 
 
-    #getHealthURL()
-    {
-        const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
-        if (protocol === 'http' && window.location.hostname !== 'localhost') {
-            console.warn('Using HTTP in production—switch to HTTPS for security');
-        }
-        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_HEALTH_FUNCTION}`;
+    #getHealthBaseUrl() {
+        const configured = (js_siteConfig.CONST_HEALTH_API_BASE_URL || '').toString().trim();
+        if (configured.length === 0) return null;
+        return configured.replace(/\/+$/, '');
     }
 
     /**
@@ -294,26 +289,28 @@ class CAndruavAuth {
         }
 
         const url = this.#getBaseUrl(js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
+        const healthBaseUrl = this.#getHealthBaseUrl();
         this.m_accesscode = p_accessCode;
 
         const keyValues = fn_buildLoginPayload(p_userName, p_accessCode, this._m_ver, js_localStorage.fn_getGroupName());
 
-        const probeResult = await this.fn_probeServer(this.#getHealthURL());
-        if (!probeResult.success) {
-            this._m_logined = false;
-            const isSslError = probeResult.isSslError;
-            const errorCode = isSslError ? ERROR_CODES.SSL_ERROR : ERROR_CODES.NETWORK_ERROR;
-            const errorMessage = isSslError
-                ? 'SSL Error: Server certificate may be invalid. Please verify the server\'s HTTPS setup.'
-                : 'Network error: Unable to reach the server.';
+        console.info('[Auth endpoints]', {
+            healthHttpBase: healthBaseUrl || '(disabled)',
+            websocketAuthBase: `${this.m_auth_ip}:${this._m_auth_port}`
+        });
 
-            js_eventEmitter.fn_dispatch(js_event.EE_Auth_BAD_Logined, {
-                e: errorCode,
-                em: errorMessage,
-                error: 'Probe failed',
-                ssl: isSslError,
-            });
-            return false;
+        if (healthBaseUrl) {
+            const probeResult = await this.fn_probeServer(healthBaseUrl);
+            if (!probeResult.success) {
+                console.warn('[Auth health check] non-blocking failure; continue login', {
+                    baseUrl: healthBaseUrl,
+                    ssl: probeResult.isSslError === true
+                });
+            } else {
+                console.info('[Auth health check] OK', { baseUrl: healthBaseUrl });
+            }
+        } else {
+            console.info('[Auth health check] skipped (CONST_HEALTH_API_BASE_URL is not configured)');
         }
 
         try {
@@ -386,7 +383,7 @@ class CAndruavAuth {
         const pluginSecure = js_siteConfig.CONST_WEBCONNECTOR_SECURE === true;
         const pluginBasePath = js_siteConfig.CONST_WEBCONNECTOR_BASE_PATH;
         const pluginLoginUrl = fn_buildAuthUrlEx(pluginSecure, pluginAuthHost, pluginAuthPort, pluginBasePath, js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
-        const pluginHealthBaseUrl = fn_buildHealthBaseUrlEx(pluginSecure, pluginAuthHost, pluginAuthPort, pluginBasePath);
+        const configuredHealthBaseUrl = this.#getHealthBaseUrl();
 
         const headers = { 'Content-Type': 'application/json' };
         const apiKey = this.fn_getPluginApiKey();
@@ -394,16 +391,25 @@ class CAndruavAuth {
             headers['x-de-api-key'] = apiKey;
         }
 
-        const probeResult = await this.fn_probeServer(pluginHealthBaseUrl, headers);
-        if (!probeResult.success) {
-            console.warn('[WebConnector] probe failed', {
-                baseUrl: pluginHealthBaseUrl,
-                ssl: probeResult.isSslError === true,
-            });
-            return false;
-        }
+        console.info('[WebConnector endpoints]', {
+            healthHttpBase: configuredHealthBaseUrl || '(disabled)',
+            websocketAuthBase: `${pluginAuthHost}:${pluginAuthPort}`,
+            websocketCommBase: `${pluginWsHost}:${pluginWsPort}`
+        });
 
-        console.info('[WebConnector] probe OK', { baseUrl: pluginHealthBaseUrl });
+        if (configuredHealthBaseUrl) {
+            const probeResult = await this.fn_probeServer(configuredHealthBaseUrl, headers);
+            if (!probeResult.success) {
+                console.warn('[WebConnector] health check failed (non-blocking)', {
+                    baseUrl: configuredHealthBaseUrl,
+                    ssl: probeResult.isSslError === true,
+                });
+            } else {
+                console.info('[WebConnector] health check OK', { baseUrl: configuredHealthBaseUrl });
+            }
+        } else {
+            console.info('[WebConnector] health check skipped (CONST_HEALTH_API_BASE_URL is not configured)');
+        }
 
         try {
             this.m_username = p_userName;
