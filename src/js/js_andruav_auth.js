@@ -6,8 +6,6 @@ import { js_localStorage } from './js_localStorage.js';
 import {
     fn_buildAuthUrl,
     fn_buildAuthUrlEx,
-    fn_buildHealthBaseUrl,
-    fn_buildHealthBaseUrlEx,
     fn_buildLoginPayload,
     fn_buildPluginSessionPayload,
     fn_parseLoginResponse,
@@ -36,24 +34,30 @@ class CAndruavAuth {
         this.m_accesscode = '';
         this.m_retry_login = true;
         this.m_retry_handle = null;
+        this.m_retry_attempts = 0;
+        this.m_max_retry_attempts = 5;
 
         window._localserverIP = '127.0.0.1';
         window._localserverPort = 9211;
 
         this._m_ver = '5.0.0';
-        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_IP
-            : js_siteConfig.CONST_PROD_MODE_IP;
-        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_PORT
-            : js_siteConfig.CONST_PROD_MODE_PORT;
-        this._m_auth_ports = this._m_auth_port; // Legacy support
+        this.fn_refreshAuthEndpoint();
         this._m_perm = 0;
         this._m_permissions_ = '';
         this._m_session_ID = null;
         this._m_party_ID = null;
         this._m_logined = false;
         this.C_ERR_SUCCESS_DISPLAY_MESSAGE = 1001; // Legacy error code
+    }
+
+    fn_refreshAuthEndpoint() {
+        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
+            ? js_siteConfig.CONST_TEST_MODE_IP
+            : js_siteConfig.CONST_PROD_MODE_IP;
+        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
+            ? js_siteConfig.CONST_TEST_MODE_PORT
+            : js_siteConfig.CONST_PROD_MODE_PORT;
+        this._m_auth_ports = this._m_auth_port;
     }
 
     fn_isPluginEnabled() {
@@ -210,13 +214,10 @@ class CAndruavAuth {
     }
 
 
-    #getHealthURL()
-    {
-        const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
-        if (protocol === 'http' && window.location.hostname !== 'localhost') {
-            console.warn('Using HTTP in production—switch to HTTPS for security');
-        }
-        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_HEALTH_FUNCTION}`;
+    #getHealthBaseUrl() {
+        const configured = (js_siteConfig.CONST_HEALTH_API_BASE_URL || '').toString().trim();
+        if (configured.length === 0) return null;
+        return configured.replace(/\/+$/, '');
     }
 
     /**
@@ -227,6 +228,7 @@ class CAndruavAuth {
      */
     async fn_do_loginAccount(p_userName, p_accessCode) {
         js_eventEmitter.fn_dispatch(js_event.EE_Auth_Login_In_Progress, null);
+        this.fn_refreshAuthEndpoint();
 
         try {
             const lsPluginEnabled = js_localStorage.fn_getWebConnectorEnabled();
@@ -272,26 +274,28 @@ class CAndruavAuth {
         }
 
         const url = this.#getBaseUrl(js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
+        const healthBaseUrl = this.#getHealthBaseUrl();
         this.m_accesscode = p_accessCode;
 
         const keyValues = fn_buildLoginPayload(p_userName, p_accessCode, this._m_ver, js_localStorage.fn_getGroupName());
 
-        const probeResult = await this.fn_probeServer(this.#getHealthURL());
-        if (!probeResult.success) {
-            this._m_logined = false;
-            const isSslError = probeResult.isSslError;
-            const errorCode = isSslError ? ERROR_CODES.SSL_ERROR : ERROR_CODES.NETWORK_ERROR;
-            const errorMessage = isSslError
-                ? 'SSL Error: Server certificate may be invalid. Please verify the server\'s HTTPS setup.'
-                : 'Network error: Unable to reach the server.';
+        console.info('[Auth endpoints]', {
+            healthHttpBase: healthBaseUrl || '(disabled)',
+            websocketAuthBase: `${this.m_auth_ip}:${this._m_auth_port}`
+        });
 
-            js_eventEmitter.fn_dispatch(js_event.EE_Auth_BAD_Logined, {
-                e: errorCode,
-                em: errorMessage,
-                error: 'Probe failed',
-                ssl: isSslError,
-            });
-            return false;
+        if (healthBaseUrl) {
+            const probeResult = await this.fn_probeServer(healthBaseUrl);
+            if (!probeResult.success) {
+                console.warn('[Auth health check] non-blocking failure; continue login', {
+                    baseUrl: healthBaseUrl,
+                    ssl: probeResult.isSslError === true
+                });
+            } else {
+                console.info('[Auth health check] OK', { baseUrl: healthBaseUrl });
+            }
+        } else {
+            console.info('[Auth health check] skipped (CONST_HEALTH_API_BASE_URL is not configured)');
         }
 
         try {
@@ -304,6 +308,7 @@ class CAndruavAuth {
 
             const parsed = fn_parseLoginResponse(response);
             if (parsed.ok === true) {
+                this.m_retry_attempts = 0;
                 this._m_logined = true;
                 this._m_session_ID = parsed.sessionId;
                 // `partyId` is only returned by WebConnector login (/w/wl/) as `plugin_party_id` (preferred) / `pid` (legacy).
@@ -347,9 +352,17 @@ class CAndruavAuth {
         }
 
         if (this.m_retry_login) {
+            this.m_retry_attempts += 1;
+            if (this.m_retry_attempts > this.m_max_retry_attempts) {
+                this.m_retry_attempts = 0;
+                console.warn('[Auth] retry limit reached; stop auto-retry');
+                return false;
+            }
+
+            const delay = Math.min(4000 * this.m_retry_attempts, 15000);
             this.m_retry_handle = setTimeout(
                 () => this.fn_do_loginAccount(p_userName, p_accessCode),
-                4000
+                delay
             );
         }
         return false;
@@ -364,7 +377,7 @@ class CAndruavAuth {
         const pluginSecure = js_siteConfig.CONST_WEBCONNECTOR_SECURE === true;
         const pluginBasePath = js_siteConfig.CONST_WEBCONNECTOR_BASE_PATH;
         const pluginLoginUrl = fn_buildAuthUrlEx(pluginSecure, pluginAuthHost, pluginAuthPort, pluginBasePath, js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
-        const pluginHealthBaseUrl = fn_buildHealthBaseUrlEx(pluginSecure, pluginAuthHost, pluginAuthPort, pluginBasePath);
+        const configuredHealthBaseUrl = this.#getHealthBaseUrl();
 
         const headers = { 'Content-Type': 'application/json' };
         const apiKey = this.fn_getPluginApiKey();
@@ -372,16 +385,25 @@ class CAndruavAuth {
             headers['x-de-api-key'] = apiKey;
         }
 
-        const probeResult = await this.fn_probeServer(pluginHealthBaseUrl, headers);
-        if (!probeResult.success) {
-            console.warn('[WebConnector] probe failed', {
-                baseUrl: pluginHealthBaseUrl,
-                ssl: probeResult.isSslError === true,
-            });
-            return false;
-        }
+        console.info('[WebConnector endpoints]', {
+            healthHttpBase: configuredHealthBaseUrl || '(disabled)',
+            websocketAuthBase: `${pluginAuthHost}:${pluginAuthPort}`,
+            websocketCommBase: `${pluginWsHost}:${pluginWsPort}`
+        });
 
-        console.info('[WebConnector] probe OK', { baseUrl: pluginHealthBaseUrl });
+        if (configuredHealthBaseUrl) {
+            const probeResult = await this.fn_probeServer(configuredHealthBaseUrl, headers);
+            if (!probeResult.success) {
+                console.warn('[WebConnector] health check failed (non-blocking)', {
+                    baseUrl: configuredHealthBaseUrl,
+                    ssl: probeResult.isSslError === true,
+                });
+            } else {
+                console.info('[WebConnector] health check OK', { baseUrl: configuredHealthBaseUrl });
+            }
+        } else {
+            console.info('[WebConnector] health check skipped (CONST_HEALTH_API_BASE_URL is not configured)');
+        }
 
         try {
             this.m_username = p_userName;
