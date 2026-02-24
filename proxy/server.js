@@ -1,71 +1,49 @@
-// proxy/server.js
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
 
-// Allow your webclient origin (add your future gcs.wingxtra.com too)
-const ALLOWED_ORIGINS = new Set([
-  "https://wingxtra-cloud-gcs.onrender.com",
-  // "https://gcs.wingxtra.com",
-]);
+// Quick status endpoint so opening the proxy URL doesn't immediately proxy upstream
+app.get("/", (req, res) => {
+  res.status(200).send("Wingxtra proxy is running. Try /h/health or /w/wl/");
+});
 
-// CORS middleware (handles preflight + normal responses)
+// CORS for your Render UI
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
+  if (origin) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
   }
-
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
-  );
-
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.status(204).end();
   next();
 });
 
-// IMPORTANT: Upstream is HTTP, not HTTPS (common for port 19408)
+// IMPORTANT: use HTTP upstream for port 19408
 const TARGET = "http://airgap.droneengage.com:19408";
 
-// Proxy configuration (includes websocket upgrade)
-const proxy = createProxyMiddleware({
-  target: TARGET,
-  changeOrigin: true,
-  ws: true,
-  secure: false, // doesn't matter for http target; keeps it tolerant if you switch targets
-  logLevel: "debug",
-
-  // Some upstreams reject unknown Origin/Host; rewrite to something acceptable
-  onProxyReq: (proxyReq, req, res) => {
-    // Remove browser origin and set a "safe" origin/host.
-    // If airgap expects a specific origin, set it here.
-    proxyReq.setHeader("Origin", "https://airgap.droneengage.com");
-    proxyReq.setHeader("Referer", "https://airgap.droneengage.com/");
-    proxyReq.setHeader("Host", "airgap.droneengage.com:19408");
-  },
-
-  onProxyReqWs: (proxyReq, req, socket, options, head) => {
-    proxyReq.setHeader("Origin", "https://airgap.droneengage.com");
-    proxyReq.setHeader("Host", "airgap.droneengage.com:19408");
-  },
-});
-
-app.use("/", proxy);
+app.use(
+  "/",
+  createProxyMiddleware({
+    target: TARGET,
+    changeOrigin: true,
+    ws: true,
+    secure: false,
+    logLevel: "debug",
+    onProxyReq: (proxyReq) => {
+      // Rewrite Origin/Host (some upstreams are strict)
+      proxyReq.setHeader("Origin", "https://airgap.droneengage.com");
+      proxyReq.setHeader("Referer", "https://airgap.droneengage.com/");
+      proxyReq.setHeader("Host", "airgap.droneengage.com:19408");
+    },
+    onProxyReqWs: (proxyReq) => {
+      proxyReq.setHeader("Origin", "https://airgap.droneengage.com");
+      proxyReq.setHeader("Host", "airgap.droneengage.com:19408");
+    }
+  })
+);
 
 const port = process.env.PORT || 10000;
-app.listen(port, () => {
-  console.log(`Wingxtra Airgap Proxy running on port ${port}`);
-  console.log(`Proxying to: ${TARGET}`);
-});
+app.listen(port, () => console.log(`Proxy listening on ${port}, target=${TARGET}`));
