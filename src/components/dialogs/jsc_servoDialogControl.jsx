@@ -5,7 +5,7 @@ import * as js_siteConfig from '../../js/js_siteConfig.js'
 import { js_globals } from '../../js/js_globals.js';
 import {EVENTS as js_event} from '../../js/js_eventList.js'
 import { js_eventEmitter } from '../../js/js_eventEmitter.js'
-import {fn_helpPage, fn_gotoUnit_byPartyID} from '../../js/js_main.jsx';
+import {fn_helpPage, fn_gotoUnit_byPartyID} from '../../js/js_main.js';
 
 
 class ClssServoUnit extends React.Component {

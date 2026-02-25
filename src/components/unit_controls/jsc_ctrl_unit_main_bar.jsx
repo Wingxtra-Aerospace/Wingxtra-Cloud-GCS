@@ -18,7 +18,7 @@ import {
   fn_gotoUnit_byPartyID,
   toggleVideo,
   toggleRecrodingVideo
-} from '../../js/js_main.jsx'
+} from '../../js/js_main.js'
 
 
 

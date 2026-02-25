@@ -10,7 +10,7 @@ import * as js_common from '../../js/js_common.js'
 
 import {js_andruav_gamepad} from '../../js/gamepad/js_andruav_gamepad.js'
 
-import {fn_gotoUnit_byPartyID} from '../../js/js_main.jsx'
+import {fn_gotoUnit_byPartyID} from '../../js/js_main.js'
 
 import { ClssGamePadAxisControl } from './jsc_gamepad_axis.jsx';
 import { ClssGamePadButton } from './jsc_gamepad_button.jsx';
