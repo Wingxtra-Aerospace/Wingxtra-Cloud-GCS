@@ -10,7 +10,7 @@ import { gui_toggleUnits } from '../js/js_main';
 import { js_localStorage } from '../js/js_localStorage';
 import { js_andruavAuth } from '../js/js_andruav_auth';
 import { ClssFireEvent } from './micro_gadgets/jsc_mctrl_fire_event.jsx';
-import { setSelectedMissionFilePathToWrite } from '../js/js_main.js';
+import { setSelectedMissionFilePathToWrite } from '../js/js_main.jsx';
 import {js_websocket_bridge} from '../js/CPC/js_websocket_bridge.js'
 
 

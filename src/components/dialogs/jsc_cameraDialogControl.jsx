@@ -10,7 +10,7 @@ import {js_eventEmitter} from '../../js/js_eventEmitter.js'
 import * as js_andruavMessages from '../../js/protocol/js_andruavMessages'
 import * as js_common from '../../js/js_common.js'
 
-import {fn_VIDEO_login, fn_VIDEO_Record, fn_gotoUnit_byPartyID} from '../../js/js_main.js';
+import {fn_VIDEO_login, fn_VIDEO_Record, fn_gotoUnit_byPartyID} from '../../js/js_main.jsx';
 
 class ClssCameraDevice extends React.Component {
 
