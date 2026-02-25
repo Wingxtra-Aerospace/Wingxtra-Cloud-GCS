@@ -1,26 +1,14 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import $ from 'jquery';
-
-const jQuery = $;
+import $ from "jquery";
 window.$ = $;
 window.jQuery = $;
-globalThis.$ = $;
-globalThis.jQuery = $;
 
-async function startApp() {
-  const { default: ClssLoginControl } = await import('./components/jsc_cmp_login.jsx');
+import React from "react";
+import { createRoot } from "react-dom/client";
+import ClssLoginControl from "./components/jsc_cmp_login";
 
-  const rootElement = document.getElementById('root');
-  if (!rootElement) {
-    throw new Error('Root element with id "root" was not found.');
-  }
-
-  createRoot(rootElement).render(
-    <React.StrictMode>
-      <ClssLoginControl />
-    </React.StrictMode>,
-  );
-}
-
-startApp();
+const rootElement = document.getElementById("root");
+createRoot(rootElement).render(
+  <React.StrictMode>
+    <ClssLoginControl />
+  </React.StrictMode>
+);
