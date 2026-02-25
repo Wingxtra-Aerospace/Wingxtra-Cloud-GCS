@@ -59,7 +59,7 @@ const Planning = () => {
 								<Link
 									id="btn_flyView"
 									className="btn btn-sm btn-warning bi bi-airplane-fill"
-									to="/home"
+									to="/"
 									title="Return to Fly View"
 								>
 									<strong className="ms-1">Fly View</strong>

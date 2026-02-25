@@ -14,6 +14,7 @@ export default function AppRouter() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="planning" element={<Planning />} />
+          <Route path="home" element={<Home />} />
           <Route path="mapeditor" element={<Planning />} />
           <Route path="debug" element={<AccessCode />} />
           <Route path="access-code" element={<AccessCode />} />
