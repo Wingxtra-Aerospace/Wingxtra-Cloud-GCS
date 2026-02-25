@@ -60,6 +60,7 @@ export let CONST_MAPBOX_STYLE = 'mapbox://styles/mapbox/standard-satellite';
 export let CONST_MAPBOX_3D_BUILDING_OPACITY = 0.45;
 export let CONST_MAPBOX_TERRAIN_EXAGGERATION = 1.0;
 export let CONST_MAPBOX_3D_BUILDING_COLOR = '#b7d1e6';
+export let CONST_MAPBOX_3D_BUILDING_MIN_ZOOM = 13;
 
 /**
  * Location of GCS are not sent over network. Only The existence of connected GCS are shared.
@@ -157,6 +158,7 @@ export function fn_applyRuntimeConfig(data) {
         if (data.CONST_MAPBOX_STYLE !== undefined) CONST_MAPBOX_STYLE = data.CONST_MAPBOX_STYLE;
         if (data.CONST_MAPBOX_3D_BUILDING_OPACITY !== undefined) CONST_MAPBOX_3D_BUILDING_OPACITY = data.CONST_MAPBOX_3D_BUILDING_OPACITY;
         if (data.CONST_MAPBOX_3D_BUILDING_COLOR !== undefined) CONST_MAPBOX_3D_BUILDING_COLOR = data.CONST_MAPBOX_3D_BUILDING_COLOR;
+        if (data.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM !== undefined) CONST_MAPBOX_3D_BUILDING_MIN_ZOOM = data.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM;
         if (data.CONST_MAPBOX_TERRAIN_EXAGGERATION !== undefined) CONST_MAPBOX_TERRAIN_EXAGGERATION = data.CONST_MAPBOX_TERRAIN_EXAGGERATION;
         if (data.CONST_DONT_BROADCAST_TO_GCSs !== undefined) CONST_DONT_BROADCAST_TO_GCSs = data.CONST_DONT_BROADCAST_TO_GCSs;
         if (data.CONST_DONT_BROADCAST_GCS_LOCATION !== undefined) CONST_DONT_BROADCAST_GCS_LOCATION = data.CONST_DONT_BROADCAST_GCS_LOCATION;
