@@ -616,6 +616,72 @@ class CAndruavMap3D {
             this.fn_refreshAltitudeVisuals();
         });
 
+        this.m_map.on('click', (event) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('click', (event) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        // single move handler (you had it duplicated)
+        this.m_map.on('move', () => {
+            this.fn_scheduleAltitudePathOverlayRender();
+        });
+
+        this.m_map.on('click', (evt) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') return;
+            if (evt?.originalEvent?.shiftKey !== true) return;
+
+            this.m_plannerCreateWaypointHandler({
+                lat: evt.lngLat.lat,
+                lng: evt.lngLat.lng
+            });
+        });
+
+        this.m_map.on('render', () => {
+            if (this.m_isVisible !== true) return;
+            this.fn_scheduleAltitudePathOverlayRender();
+        });
+
         this.m_map.on('moveend', () => {
             const view = this.fn_getView();
             if (view) this.m_lastView = view;

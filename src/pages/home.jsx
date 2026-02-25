@@ -9,6 +9,7 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
