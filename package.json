@@ -54,7 +54,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src",
-    "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js"
+    "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js",
+    "verify:dist": "node -e \"const fs=require('fs'); const p='dist/index.html'; if(!fs.existsSync(p)) { console.error('MISSING dist/index.html'); process.exit(1);} const s=fs.readFileSync(p,'utf8'); console.log('--- dist/index.html (first 500 chars) ---\\n'+s.slice(0,500)+'\\n--- end ---'); if(s.trim().length<50){ console.error('dist/index.html is too small/empty'); process.exit(1);} if(!s.includes('id=\\\"root\\\"') && !s.includes('id=\\'root\\'')) { console.error('dist/index.html missing #root'); process.exit(1);} \"",
+    "render-build": "npm install && npm run build && npm run verify:dist"
   },
   "eslintConfig": {
     "extends": [
