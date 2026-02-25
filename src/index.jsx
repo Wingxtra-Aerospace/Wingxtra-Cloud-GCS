@@ -1,9 +1,8 @@
-import $ from "jquery";
+import { fn_loadConfig } from './js/js_siteConfig.js';
+import $ from 'jquery';
 
 window.$ = $;
 window.jQuery = $;
-
-import { fn_loadConfig } from './js/js_siteConfig.js';
 
 
 async function fn_startApp() {
