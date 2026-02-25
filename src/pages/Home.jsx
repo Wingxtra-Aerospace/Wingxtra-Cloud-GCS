@@ -10,7 +10,6 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
@@ -44,9 +43,8 @@ const Home = () => {
   }, []);
 
   const fn_openPlanningWithReturn = () => {
-    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    sessionStorage.setItem('flyViewReturnUrl', currentUrl || '/');
-    navigate('/planning');
+    sessionStorage.setItem('flyViewReturnUrl', window.location.href);
+    window.location.assign('/#/planning');
   };
 
   return (

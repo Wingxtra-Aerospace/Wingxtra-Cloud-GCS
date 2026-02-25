@@ -12,7 +12,6 @@ import 'leaflet.pm';
 import 'jquery-ui-dist/jquery-ui.min.js';
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
 
 import { js_globals } from '../js/js_globals.js'
@@ -42,7 +41,7 @@ const Planning = () => {
 	const fn_returnToFlyView = () => {
 		const storedReturnUrl = sessionStorage.getItem('flyViewReturnUrl');
 		sessionStorage.removeItem('flyViewReturnUrl');
-		navigate(storedReturnUrl || '/');
+		window.location.assign(storedReturnUrl || `${window.location.origin}/#/`);
 	};
 
 	return (
