@@ -148,8 +148,10 @@ class CAndruavMap3D {
             this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', 'visible');
             this.m_map.setPaintProperty('add-3d-buildings', 'fill-extrusion-opacity', buildingOpacity);
             this.m_map.setPaintProperty('add-3d-buildings', 'fill-extrusion-color', buildingColor);
-            this.fn_ensureCachedBuildingLayer();
-            this.fn_captureBuildingsForLowZoom();
+            if (this.m_map.getLayer('add-3d-buildings-footprint')) {
+                this.m_map.setPaintProperty('add-3d-buildings-footprint', 'fill-color', buildingColor);
+                this.m_map.setPaintProperty('add-3d-buildings-footprint', 'fill-opacity', Math.min(0.35, Math.max(0.1, buildingOpacity * 0.7)));
+            }
             this.fn_updateBuildingLayerVisibility();
             return;
         }
@@ -162,12 +164,55 @@ class CAndruavMap3D {
             minzoom: 0,
             paint: {
                 'fill-extrusion-color': buildingColor,
-                'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
+                'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    0, 2,
+                    this.fn_getBuildingMinZoom(), 8,
+                    this.fn_getBuildingMinZoom() + 1, ['coalesce', ['get', 'height'], 10]
+                ],
                 'fill-extrusion-base': ['coalesce', ['get', 'min_height'], 0],
                 'fill-extrusion-opacity': buildingOpacity
             }
         }, beforeLayerId);
 
+        if (!this.m_map.getLayer('add-3d-buildings-footprint')) {
+            this.m_map.addLayer({
+                id: 'add-3d-buildings-footprint',
+                source: 'mapbox-buildings',
+                'source-layer': 'building',
+                type: 'fill',
+                minzoom: 0,
+                paint: {
+                    'fill-color': buildingColor,
+                    'fill-opacity': Math.min(0.35, Math.max(0.1, buildingOpacity * 0.7))
+                }
+            }, 'add-3d-buildings');
+        }
+
+        this.fn_updateBuildingLayerVisibility();
+    }
+
+    fn_updateBuildingLayerVisibility() {
+        if (!this.m_map) return;
+
+        const buildingMinZoom = this.fn_getBuildingMinZoom();
+        const zoom = Number(this.m_map.getZoom());
+        if (!Number.isFinite(zoom)) return;
+
+        const showFootprint = zoom < buildingMinZoom;
+
+        try {
+            if (this.m_map.getLayer('add-3d-buildings-footprint')) {
+                this.m_map.setLayoutProperty('add-3d-buildings-footprint', 'visibility', showFootprint ? 'visible' : 'none');
+            }
+            if (this.m_map.getLayer('add-3d-buildings')) {
+                this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', 'visible');
+            }
+        } catch (_) {
+            // Ignore layer visibility updates that fail during style transitions.
+        }
     }
 
     fn_ensureMissionLayers() {
@@ -226,6 +271,13 @@ class CAndruavMap3D {
         if (this.m_pendingMissionGeoJson) {
             this.fn_applyMissionGeoJson(this.m_pendingMissionGeoJson);
             this.m_pendingMissionGeoJson = null;
+        }
+
+        try {
+            if (this.m_map.getLayer(this.m_missionLineLayerId)) this.m_map.moveLayer(this.m_missionLineLayerId);
+            if (this.m_map.getLayer(this.m_missionPointLayerId)) this.m_map.moveLayer(this.m_missionPointLayerId);
+        } catch (_) {
+            // Ignore layer ordering updates while style is still settling.
         }
     }
 
@@ -674,9 +726,11 @@ class CAndruavMap3D {
                 this.fn_refreshAltitudeVisuals();
             }
 
+            this.fn_updateBuildingLayerVisibility();
         });
 
         this.m_map.on('move', () => {
+            this.fn_updateBuildingLayerVisibility();
             this.fn_refreshAltitudeVisuals();
         });
 
