@@ -56,7 +56,7 @@ const Planning = () => {
 								<a
 									id="btn_flyView"
 									className="btn btn-sm btn-warning bi bi-airplane-fill"
-									href="/home"
+									href="./home"
 									title="Return to Fly View"
 								>
 									<strong className="ms-1">Fly View</strong>
