@@ -55,6 +55,7 @@ var info_unit_context_popup = null;
 let selectedMissionFilesToRead = "";
 let selectedMissionFilesToWrite = "";
 let g_lastMap3DViewState = null;
+let g_isMap3DMode = false;
 
 let g_flyViewMissionPlans3D = {};
 
@@ -608,6 +609,8 @@ export function fn_showControl() {
 // -----------------------------------------------------------------------------
 
 export function fn_updateMapToggleButton(is3DVisible) {
+	g_isMap3DMode = (is3DVisible === true);
+
 	const btn = $('#btn_toggleMapMode');
 	if (btn.length === 0) return;
 
@@ -626,8 +629,7 @@ export function fn_updateMapToggleButton(is3DVisible) {
 
 
 export function fn_toggleMapMode() {
-	const is3DVisible = $('#div_map3d_view').is(':visible');
-	if (is3DVisible === true) {
+	if (g_isMap3DMode === true) {
 		fn_showMap();
 	} else {
 		fn_showMap3D();
@@ -637,6 +639,7 @@ export function fn_toggleMapMode() {
 
 
 export function fn_showMap() {
+	g_isMap3DMode = false;
 	const map3dState = js_map3d.fn_getViewState();
 	g_lastMap3DViewState = map3dState;
 
@@ -650,6 +653,7 @@ export function fn_showMap() {
 }
 
 export function fn_showMap3D() {
+	g_isMap3DMode = true;
 	const map2dState = js_leafletmap.fn_getViewState();
 	if (g_lastMap3DViewState != null) {
 		map2dState.bearing = g_lastMap3DViewState.bearing;
@@ -674,6 +678,16 @@ export function fn_showMap3D() {
 			fn_syncFlyViewMissionsIn3D();
 		}
 	}, 150);
+
+	setTimeout(() => {
+		if (g_isMap3DMode !== true) return;
+		if (js_globals.CONST_MAP_EDITOR === true) {
+			fn_syncPlannerMissionIn3D();
+		} else {
+			fn_syncFlyViewMissionsIn3D();
+		}
+	}, 450);
+
 	fn_updateMapToggleButton(true);
 }
 

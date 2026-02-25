@@ -374,7 +374,7 @@ class CAndruavMap3D {
         if (!this.m_map || !this.m_isReady) return;
 
         if (this.m_isVisible === true) {
-            this.fn_setMissionBaseLayerVisibility(false);
+            this.fn_setMissionBaseLayerVisibility(true);
             this.fn_renderAltitudePathOverlay(this.m_lastMissionPlans, this.m_lastActiveMissionId);
             return;
         }
@@ -823,7 +823,7 @@ class CAndruavMap3D {
             this.m_map.resize();
             this.fn_applyBuildings();
             this.fn_ensureMissionLayers();
-            this.fn_setMissionBaseLayerVisibility(false);
+            this.fn_setMissionBaseLayerVisibility(true);
             this.fn_updateBuildingLayerVisibility();
             this.fn_refreshAltitudeVisuals();
         }
