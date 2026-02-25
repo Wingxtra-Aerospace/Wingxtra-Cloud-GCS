@@ -9,7 +9,7 @@ import * as js_andruavMessages from '../../js/protocol/js_andruavMessages'
 
 import {
     fn_do_modal_confirmation
-    } from '../../js/js_main.js'
+    } from '../../js/js_main.jsx'
 
 export default class ClssModuleDetails extends React.Component {
 

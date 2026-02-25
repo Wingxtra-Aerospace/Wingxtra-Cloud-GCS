@@ -8,7 +8,7 @@ import * as js_common from '../../js/js_common.js';
 import { js_globals } from '../../js/js_globals.js';
 import { EVENTS as js_event } from '../../js/js_eventList.js';
 import { js_eventEmitter } from '../../js/js_eventEmitter.js';
-import { fn_do_modal_confirmation, fn_gotoUnit, fn_helpPage } from '../../js/js_main.js';
+import { fn_do_modal_confirmation, fn_gotoUnit, fn_helpPage } from '../../js/js_main.jsx';
 
 class ClssParameterItem extends React.Component {
     constructor() {
