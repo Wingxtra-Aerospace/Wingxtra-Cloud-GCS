@@ -7,7 +7,7 @@ import Draggable from "react-draggable";
 
 import {EVENTS as js_event} from '../../js/js_eventList.js'
 import {js_eventEmitter} from '../../js/js_eventEmitter.js'
-import {fn_gotoUnit_byPartyID, fn_doYAW} from '../../js/js_main.js'
+import {fn_gotoUnit_byPartyID, fn_doYAW} from '../../js/js_main.jsx'
 import * as js_helpers from '../../js/js_helpers.js';
 
 export default class ClssYawDialog extends React.Component
