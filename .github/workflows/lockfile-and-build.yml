@@ -23,24 +23,26 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Clean install
-        run: npm ci
+      - name: Install dependencies (bootstrap lockfile if needed)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "package-lock.json found; running npm ci"
+            npm ci
+          else
+            echo "package-lock.json missing; running npm install to generate lockfile"
+            npm install
 
-      - name: Print AJV dependency tree
-        run: npm run deps:ajv
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+            if git diff --quiet package-lock.json; then
+              echo "No package-lock.json changes detected after npm install"
+            else
+              git add package-lock.json
+              git commit -m "chore: bootstrap package-lock.json"
+              git push origin HEAD:master
+            fi
+          fi
 
       - name: Build
         run: npm run build
-
-      - name: Commit updated lockfile
-        run: |
-          if git diff --quiet package-lock.json; then
-            echo "No package-lock.json changes detected"
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore: update package-lock.json"
-          git push origin HEAD:master
