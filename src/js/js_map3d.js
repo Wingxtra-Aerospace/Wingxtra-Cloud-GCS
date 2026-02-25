@@ -22,11 +22,6 @@ class CAndruavMap3D {
         this.m_altitudePathOverlaySvg = null;
         this.m_lastMissionPlans = null;
         this.m_lastActiveMissionId = null;
-        this.m_buildingVisibilityMinZoom = 13;
-        this.m_cachedBuildingSourceId = 'de-cached-3d-buildings';
-        this.m_cachedBuildingLayerId = 'de-cached-3d-buildings-layer';
-        this.m_lastCapturedBuildingCacheKey = null;
-        this.m_isFallbackStyle = false;
     }
 
     async fn_loadMapboxSdk() {
@@ -62,44 +57,10 @@ class CAndruavMap3D {
         return window.mapboxgl;
     }
 
-    fn_getFallbackStyle() {
-        return {
-            version: 8,
-            sources: {
-                satellite: {
-                    type: 'raster',
-                    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                    tileSize: 256,
-                    attribution: 'Tiles © Esri'
-                }
-            },
-            layers: [
-                {
-                    id: 'satellite',
-                    type: 'raster',
-                    source: 'satellite'
-                }
-            ]
-        };
-    }
-
     fn_getBuildingOpacity() {
         const configured = Number(js_siteConfig.CONST_MAPBOX_3D_BUILDING_OPACITY);
         if (!Number.isFinite(configured)) return 1.0;
         return Math.min(1.0, Math.max(0.05, configured));
-    }
-
-    fn_getBuildingMinZoom() {
-        const configured = Number(js_siteConfig.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM);
-        if (Number.isFinite(configured) && configured >= 0) {
-            return configured;
-        }
-
-        if (Number.isFinite(this.m_buildingVisibilityMinZoom) && this.m_buildingVisibilityMinZoom >= 0) {
-            return this.m_buildingVisibilityMinZoom;
-        }
-
-        return 13;
     }
 
     fn_applyTerrain() {
@@ -148,11 +109,6 @@ class CAndruavMap3D {
             this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', 'visible');
             this.m_map.setPaintProperty('add-3d-buildings', 'fill-extrusion-opacity', buildingOpacity);
             this.m_map.setPaintProperty('add-3d-buildings', 'fill-extrusion-color', buildingColor);
-            if (this.m_map.getLayer('add-3d-buildings-footprint')) {
-                this.m_map.setPaintProperty('add-3d-buildings-footprint', 'fill-color', buildingColor);
-                this.m_map.setPaintProperty('add-3d-buildings-footprint', 'fill-opacity', Math.min(0.35, Math.max(0.1, buildingOpacity * 0.7)));
-            }
-            this.fn_updateBuildingLayerVisibility();
             return;
         }
 
@@ -161,58 +117,14 @@ class CAndruavMap3D {
             source: 'mapbox-buildings',
             'source-layer': 'building',
             type: 'fill-extrusion',
-            minzoom: 0,
+            minzoom: 10,
             paint: {
                 'fill-extrusion-color': buildingColor,
-                'fill-extrusion-height': [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    0, 2,
-                    this.fn_getBuildingMinZoom(), 8,
-                    this.fn_getBuildingMinZoom() + 1, ['coalesce', ['get', 'height'], 10]
-                ],
+                'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
                 'fill-extrusion-base': ['coalesce', ['get', 'min_height'], 0],
                 'fill-extrusion-opacity': buildingOpacity
             }
         }, beforeLayerId);
-
-        if (!this.m_map.getLayer('add-3d-buildings-footprint')) {
-            this.m_map.addLayer({
-                id: 'add-3d-buildings-footprint',
-                source: 'mapbox-buildings',
-                'source-layer': 'building',
-                type: 'fill',
-                minzoom: 0,
-                paint: {
-                    'fill-color': buildingColor,
-                    'fill-opacity': Math.min(0.35, Math.max(0.1, buildingOpacity * 0.7))
-                }
-            }, 'add-3d-buildings');
-        }
-
-        this.fn_updateBuildingLayerVisibility();
-    }
-
-    fn_updateBuildingLayerVisibility() {
-        if (!this.m_map) return;
-
-        const buildingMinZoom = this.fn_getBuildingMinZoom();
-        const zoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(zoom)) return;
-
-        const showFootprint = zoom < buildingMinZoom;
-
-        try {
-            if (this.m_map.getLayer('add-3d-buildings-footprint')) {
-                this.m_map.setLayoutProperty('add-3d-buildings-footprint', 'visibility', showFootprint ? 'visible' : 'none');
-            }
-            if (this.m_map.getLayer('add-3d-buildings')) {
-                this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', 'visible');
-            }
-        } catch (_) {
-            // Ignore layer visibility updates that fail during style transitions.
-        }
     }
 
     fn_ensureMissionLayers() {
@@ -272,13 +184,6 @@ class CAndruavMap3D {
             this.fn_applyMissionGeoJson(this.m_pendingMissionGeoJson);
             this.m_pendingMissionGeoJson = null;
         }
-
-        try {
-            if (this.m_map.getLayer(this.m_missionLineLayerId)) this.m_map.moveLayer(this.m_missionLineLayerId);
-            if (this.m_map.getLayer(this.m_missionPointLayerId)) this.m_map.moveLayer(this.m_missionPointLayerId);
-        } catch (_) {
-            // Ignore layer ordering updates while style is still settling.
-        }
     }
 
 
@@ -287,10 +192,10 @@ class CAndruavMap3D {
         if (this.m_missionLayerHandlersBound === true) return;
         if (!this.m_map.getLayer(this.m_missionPointLayerId)) return;
 
-        this.m_map.on('click', this.m_missionPointLayerId, (mapLayerClickEvent) => {
+        this.m_map.on('click', this.m_missionPointLayerId, (event) => {
             if (typeof this.m_plannerSelectWaypointHandler !== 'function') return;
 
-            const feature = mapLayerClickEvent?.features?.[0];
+            const feature = event?.features?.[0];
             const missionId = feature?.properties?.missionId;
             const order = Number(feature?.properties?.order);
             if (missionId == null || !Number.isFinite(order) || order <= 0) return;
@@ -374,7 +279,7 @@ class CAndruavMap3D {
         if (!this.m_map || !this.m_isReady) return;
 
         if (this.m_isVisible === true) {
-            this.fn_setMissionBaseLayerVisibility(true);
+            this.fn_setMissionBaseLayerVisibility(false);
             this.fn_renderAltitudePathOverlay(this.m_lastMissionPlans, this.m_lastActiveMissionId);
             return;
         }
@@ -646,70 +551,30 @@ class CAndruavMap3D {
     }
 
     async fn_initMap(containerId) {
-        const targetContainer = document.getElementById(containerId);
-        if (!targetContainer) return;
+        if (this.m_isReady === true || this.m_map != null) return;
 
-        if (this.m_map != null) {
-            const currentContainer = this.m_map.getContainer ? this.m_map.getContainer() : null;
-            if (this.m_isReady === true && currentContainer === targetContainer) return;
-
-            this.fn_clearMissionAltitudeMarkers();
-            this.fn_clearAltitudePathOverlay();
-            try {
-                this.m_map.remove();
-            } catch (_) {
-                // Ignore remove failures and recreate map instance.
-            }
-            this.m_map = null;
-            this.m_isReady = false;
-            this.m_pendingViewState = null;
-            this.m_missionLayerHandlersBound = false;
+        const token = js_siteConfig.CONST_MAPBOX_ACCESS_TOKEN;
+        if (!token) {
+            console.warn('Mapbox 3D disabled: CONST_MAPBOX_ACCESS_TOKEN is not configured.');
+            return;
         }
-
-        const token = (js_siteConfig.CONST_MAPBOX_ACCESS_TOKEN || '').toString().trim();
 
         const mapboxgl = await this.fn_loadMapboxSdk();
-        if (token.length > 0) {
-            mapboxgl.accessToken = token;
-        }
-
-        const configuredStyle = js_siteConfig.CONST_MAPBOX_STYLE || 'mapbox://styles/mapbox/standard-satellite';
-        this.m_isFallbackStyle = token.length === 0;
-        if (this.m_isFallbackStyle) {
-            console.warn('Mapbox token is missing. Falling back to raster satellite style for 3D view.');
-        }
-
-        const buildingMinZoom = this.fn_getBuildingMinZoom();
+        mapboxgl.accessToken = token;
 
         this.m_map = new mapboxgl.Map({
             container: containerId,
-            style: this.m_isFallbackStyle ? this.fn_getFallbackStyle() : configuredStyle,
+            style: js_siteConfig.CONST_MAPBOX_STYLE || 'mapbox://styles/mapbox/standard-satellite',
             center: [-0.1870, 5.6037],
-            zoom: Math.max(11.5, buildingMinZoom),
-            minZoom: buildingMinZoom,
+            zoom: 11.5,
             pitch: 45,
             bearing: 0,
             antialias: true
         });
 
         this.m_map.on('style.load', () => {
-            if (this.m_isFallbackStyle === true) {
-                console.info('[Map3D] using fallback raster style');
-                return;
-            }
             this.fn_applyTerrain();
             this.fn_applyBuildings();
-            this.fn_ensureMissionLayers();
-        });
-
-        this.m_map.on('error', (mapErrorEvent) => {
-            const errorMessage = String(mapErrorEvent?.error?.message || mapErrorEvent?.error || '').toLowerCase();
-            const isAuthIssue = mapErrorEvent?.error?.status === 401 || errorMessage.includes('invalid mapbox access token') || errorMessage.includes('unauthorized');
-            if (!isAuthIssue || this.m_isFallbackStyle === true || !this.m_map) return;
-
-            console.warn('[Map3D] Mapbox auth/style failed. Switching to fallback raster style.', { message: mapErrorEvent?.error?.message });
-            this.m_isFallbackStyle = true;
-            this.m_map.setStyle(this.fn_getFallbackStyle());
         });
 
         this.m_map.on('load', () => {
@@ -726,12 +591,24 @@ class CAndruavMap3D {
                 this.fn_setMissionBaseLayerVisibility(false);
                 this.fn_refreshAltitudeVisuals();
             }
+        });
 
-            this.fn_updateBuildingLayerVisibility();
+        this.m_map.on('click', (event) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
         });
 
         this.m_map.on('move', () => {
-            this.fn_updateBuildingLayerVisibility();
             this.fn_refreshAltitudeVisuals();
         });
 
@@ -754,11 +631,60 @@ class CAndruavMap3D {
             });
         });
 
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('click', (event) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        // single move handler (you had it duplicated)
+        this.m_map.on('move', () => {
+            this.fn_scheduleAltitudePathOverlayRender();
+        });
+
+        this.m_map.on('click', (evt) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') return;
+            if (evt?.originalEvent?.shiftKey !== true) return;
+
+            this.m_plannerCreateWaypointHandler({
+                lat: evt.lngLat.lat,
+                lng: evt.lngLat.lng
+            });
+        });
+
+        this.m_map.on('render', () => {
+            if (this.m_isVisible !== true) return;
+            this.fn_scheduleAltitudePathOverlayRender();
+        });
+
         this.m_map.on('moveend', () => {
             const view = this.fn_getView();
             if (view) this.m_lastView = view;
-            this.fn_captureBuildingsForLowZoom();
-            this.fn_updateBuildingLayerVisibility();
             this.fn_refreshAltitudeVisuals();
         });
 
@@ -793,8 +719,7 @@ class CAndruavMap3D {
 
         const lat = Number(state.lat);
         const lng = Number(state.lng);
-        const minAllowedZoom = this.fn_getBuildingMinZoom();
-        const zoom = Math.max(Number(state.zoom), minAllowedZoom);
+        const zoom = Number(state.zoom);
         const bearing = Number(state.bearing);
         const pitch = Number(state.pitch);
 
@@ -821,10 +746,7 @@ class CAndruavMap3D {
         this.m_isVisible = true;
         if (this.m_map) {
             this.m_map.resize();
-            this.fn_applyBuildings();
-            this.fn_ensureMissionLayers();
-            this.fn_setMissionBaseLayerVisibility(true);
-            this.fn_updateBuildingLayerVisibility();
+            this.fn_setMissionBaseLayerVisibility(false);
             this.fn_refreshAltitudeVisuals();
         }
     }
