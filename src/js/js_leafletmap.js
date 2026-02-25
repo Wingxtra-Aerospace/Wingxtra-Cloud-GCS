@@ -145,24 +145,11 @@ class CLeafLetAndruavMap {
             return;
         }
         
-        const primaryLayer = L.tileLayer(tileUrl, {
+        L.tileLayer(tileUrl, {
                 maxZoom: 22,
                 attribution: v_site_copyright,
                 id: 'mapbox.streets'
             }).addTo(this.m_Map);
-
-        const fallbackTileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        let fallbackAttached = false;
-        primaryLayer.on('tileerror', () => {
-            if (fallbackAttached) return;
-            fallbackAttached = true;
-            console.warn('[Leaflet] primary tile source failed, switching to fallback imagery');
-            this.m_Map.removeLayer(primaryLayer);
-            L.tileLayer(fallbackTileUrl, {
-                maxZoom: 22,
-                attribution: v_site_copyright,
-            }).addTo(this.m_Map);
-        });
         
 
         
