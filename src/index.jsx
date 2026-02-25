@@ -1,3 +1,8 @@
+import $ from "jquery";
+
+window.$ = $;
+window.jQuery = $;
+
 import { fn_loadConfig } from './js/js_siteConfig.js';
 
 
