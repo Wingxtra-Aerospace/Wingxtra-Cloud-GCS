@@ -6,8 +6,6 @@ import { js_localStorage } from './js_localStorage.js';
 import {
     fn_buildAuthUrl,
     fn_buildAuthUrlEx,
-    fn_buildHealthBaseUrl,
-    fn_buildHealthBaseUrlEx,
     fn_buildLoginPayload,
     fn_buildPluginSessionPayload,
     fn_parseLoginResponse,
@@ -36,24 +34,30 @@ class CAndruavAuth {
         this.m_accesscode = '';
         this.m_retry_login = true;
         this.m_retry_handle = null;
+        this.m_retry_attempts = 0;
+        this.m_max_retry_attempts = 5;
 
         window._localserverIP = '127.0.0.1';
         window._localserverPort = 9211;
 
         this._m_ver = '5.0.0';
-        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_IP
-            : js_siteConfig.CONST_PROD_MODE_IP;
-        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_PORT
-            : js_siteConfig.CONST_PROD_MODE_PORT;
-        this._m_auth_ports = this._m_auth_port; // Legacy support
+        this.fn_refreshAuthEndpoint();
         this._m_perm = 0;
         this._m_permissions_ = '';
         this._m_session_ID = null;
         this._m_party_ID = null;
         this._m_logined = false;
         this.C_ERR_SUCCESS_DISPLAY_MESSAGE = 1001; // Legacy error code
+    }
+
+    fn_refreshAuthEndpoint() {
+        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
+            ? js_siteConfig.CONST_TEST_MODE_IP
+            : js_siteConfig.CONST_PROD_MODE_IP;
+        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
+            ? js_siteConfig.CONST_TEST_MODE_PORT
+            : js_siteConfig.CONST_PROD_MODE_PORT;
+        this._m_auth_ports = this._m_auth_port;
     }
 
     fn_isPluginEnabled() {
@@ -209,14 +213,64 @@ class CAndruavAuth {
         return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_WEB_FUNCTION}${path}`;
     }
 
+    #getWebSocketLoginUrl() {
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_WEB_FUNCTION}${js_andruavMessages.CONST_WEB_LOGIN_COMMAND}`;
+    }
 
-    #getHealthURL()
-    {
-        const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
-        if (protocol === 'http' && window.location.hostname !== 'localhost') {
-            console.warn('Using HTTP in production—switch to HTTPS for security');
-        }
-        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_HEALTH_FUNCTION}`;
+    async #loginViaWebSocket(loginUrl, payload) {
+        return new Promise((resolve, reject) => {
+            let done = false;
+            const ws = new WebSocket(loginUrl);
+
+            const finish = (fn) => (arg) => {
+                if (done) return;
+                done = true;
+                try { ws.close(); } catch { }
+                fn(arg);
+            };
+
+            const onResolve = finish(resolve);
+            const onReject = finish(reject);
+
+            const timer = setTimeout(() => {
+                onReject(new Error('WebSocket login timeout'));
+            }, AUTH_REQUEST_TIMEOUT);
+
+            ws.onopen = () => {
+                console.info('[Auth WS] open', { url: loginUrl });
+                ws.send(JSON.stringify(payload));
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const response = JSON.parse(event.data);
+                    console.info('[Auth WS] message received', { hasErrorCode: response?.e !== undefined });
+                    clearTimeout(timer);
+                    onResolve(response);
+                } catch {
+                    clearTimeout(timer);
+                    onReject(new Error('Invalid JSON response from login WebSocket'));
+                }
+            };
+
+            ws.onerror = () => {
+                console.error('[Auth WS] error', { url: loginUrl });
+                clearTimeout(timer);
+                onReject(new Error('WebSocket login error'));
+            };
+
+            ws.onclose = (event) => {
+                console.info('[Auth WS] close', { code: event.code, reason: event.reason || '(none)' });
+            };
+        });
+    }
+
+
+    #getHealthBaseUrl() {
+        const configured = (js_siteConfig.CONST_HEALTH_API_BASE_URL || '').toString().trim();
+        if (configured.length === 0) return null;
+        return configured.replace(/\/+$/, '');
     }
 
     /**
@@ -227,6 +281,7 @@ class CAndruavAuth {
      */
     async fn_do_loginAccount(p_userName, p_accessCode) {
         js_eventEmitter.fn_dispatch(js_event.EE_Auth_Login_In_Progress, null);
+        this.fn_refreshAuthEndpoint();
 
         try {
             const lsPluginEnabled = js_localStorage.fn_getWebConnectorEnabled();
@@ -271,39 +326,24 @@ class CAndruavAuth {
             return false;
         }
 
-        const url = this.#getBaseUrl(js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
+        const loginWsUrl = this.#getWebSocketLoginUrl();
         this.m_accesscode = p_accessCode;
 
         const keyValues = fn_buildLoginPayload(p_userName, p_accessCode, this._m_ver, js_localStorage.fn_getGroupName());
 
-        const probeResult = await this.fn_probeServer(this.#getHealthURL());
-        if (!probeResult.success) {
-            this._m_logined = false;
-            const isSslError = probeResult.isSslError;
-            const errorCode = isSslError ? ERROR_CODES.SSL_ERROR : ERROR_CODES.NETWORK_ERROR;
-            const errorMessage = isSslError
-                ? 'SSL Error: Server certificate may be invalid. Please verify the server\'s HTTPS setup.'
-                : 'Network error: Unable to reach the server.';
-
-            js_eventEmitter.fn_dispatch(js_event.EE_Auth_BAD_Logined, {
-                e: errorCode,
-                em: errorMessage,
-                error: 'Probe failed',
-                ssl: isSslError,
-            });
-            return false;
-        }
+        console.info('[Auth endpoints]', {
+            host: this.m_auth_ip,
+            port: this._m_auth_port,
+            loginWsUrl: loginWsUrl,
+        });
+        console.info('[Auth health check] skipped for airgap websocket login channel (/w/wl/)');
 
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(keyValues),
-                signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT),
-            }).then(res => res.json());
+            const response = await this.#loginViaWebSocket(loginWsUrl, keyValues);
 
             const parsed = fn_parseLoginResponse(response);
             if (parsed.ok === true) {
+                this.m_retry_attempts = 0;
                 this._m_logined = true;
                 this._m_session_ID = parsed.sessionId;
                 // `partyId` is only returned by WebConnector login (/w/wl/) as `plugin_party_id` (preferred) / `pid` (legacy).
@@ -347,9 +387,17 @@ class CAndruavAuth {
         }
 
         if (this.m_retry_login) {
+            this.m_retry_attempts += 1;
+            if (this.m_retry_attempts > this.m_max_retry_attempts) {
+                this.m_retry_attempts = 0;
+                console.warn('[Auth] retry limit reached; stop auto-retry');
+                return false;
+            }
+
+            const delay = Math.min(4000 * this.m_retry_attempts, 15000);
             this.m_retry_handle = setTimeout(
                 () => this.fn_do_loginAccount(p_userName, p_accessCode),
-                4000
+                delay
             );
         }
         return false;
@@ -364,7 +412,7 @@ class CAndruavAuth {
         const pluginSecure = js_siteConfig.CONST_WEBCONNECTOR_SECURE === true;
         const pluginBasePath = js_siteConfig.CONST_WEBCONNECTOR_BASE_PATH;
         const pluginLoginUrl = fn_buildAuthUrlEx(pluginSecure, pluginAuthHost, pluginAuthPort, pluginBasePath, js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
-        const pluginHealthBaseUrl = fn_buildHealthBaseUrlEx(pluginSecure, pluginAuthHost, pluginAuthPort, pluginBasePath);
+        const configuredHealthBaseUrl = this.#getHealthBaseUrl();
 
         const headers = { 'Content-Type': 'application/json' };
         const apiKey = this.fn_getPluginApiKey();
@@ -372,16 +420,25 @@ class CAndruavAuth {
             headers['x-de-api-key'] = apiKey;
         }
 
-        const probeResult = await this.fn_probeServer(pluginHealthBaseUrl, headers);
-        if (!probeResult.success) {
-            console.warn('[WebConnector] probe failed', {
-                baseUrl: pluginHealthBaseUrl,
-                ssl: probeResult.isSslError === true,
-            });
-            return false;
-        }
+        console.info('[WebConnector endpoints]', {
+            healthHttpBase: configuredHealthBaseUrl || '(disabled)',
+            websocketAuthBase: `${pluginAuthHost}:${pluginAuthPort}`,
+            websocketCommBase: `${pluginWsHost}:${pluginWsPort}`
+        });
 
-        console.info('[WebConnector] probe OK', { baseUrl: pluginHealthBaseUrl });
+        if (configuredHealthBaseUrl) {
+            const probeResult = await this.fn_probeServer(configuredHealthBaseUrl, headers);
+            if (!probeResult.success) {
+                console.warn('[WebConnector] health check failed (non-blocking)', {
+                    baseUrl: configuredHealthBaseUrl,
+                    ssl: probeResult.isSslError === true,
+                });
+            } else {
+                console.info('[WebConnector] health check OK', { baseUrl: configuredHealthBaseUrl });
+            }
+        } else {
+            console.info('[WebConnector] health check skipped (CONST_HEALTH_API_BASE_URL is not configured)');
+        }
 
         try {
             this.m_username = p_userName;
