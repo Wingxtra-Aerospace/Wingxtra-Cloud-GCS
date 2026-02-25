@@ -650,6 +650,23 @@ class CAndruavMap3D {
                 this.fn_setMissionBaseLayerVisibility(false);
                 this.fn_refreshAltitudeVisuals();
             }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
         });
 
         this.m_map.on('click', (event) => {
@@ -686,16 +703,10 @@ class CAndruavMap3D {
         });
     }
 
-    // ---------- VIEW STATE (single canonical implementation) ----------
+    // ---------- VIEW STATE ----------
     fn_getViewState() {
         if (!this.m_map || !this.m_isReady) {
-            return {
-                lat: 5.6037,
-                lng: -0.1870,
-                zoom: 11.5,
-                bearing: 0,
-                pitch: 45
-            };
+            return { lat: 5.6037, lng: -0.1870, zoom: 11.5, bearing: 0, pitch: 45 };
         }
 
         const center = this.m_map.getCenter();
@@ -732,7 +743,7 @@ class CAndruavMap3D {
         });
     }
 
-    // Backward-compatible aliases (keep ONLY one copy)
+    // aliases
     fn_getView() {
         return this.fn_getViewState();
     }
@@ -740,7 +751,6 @@ class CAndruavMap3D {
     fn_applyView(state) {
         this.fn_applyViewState(state);
     }
-    // ---------------------------------------------------------------
 
     fn_ensureBuildingsVisibleAtCurrentZoom() {
         if (!this.m_map || !this.m_isReady) return;
