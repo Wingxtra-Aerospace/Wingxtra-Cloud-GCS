@@ -121,7 +121,7 @@ export class ClssMainContextMenu extends React.Component {
                         <p
                             className="cursor_hand text-primary margin_zero si-07x al_c"
                             onClick={() => {
-                                window.location.assign(`./mapeditor?zoom=${js_leafletmap.fn_getZoom()}&lat=${v_lat}&lng=${v_lng}`);
+                                window.location.assign(`/mapeditor?zoom=${js_leafletmap.fn_getZoom()}&lat=${v_lat}&lng=${v_lng}`);
                             }}
                         >
                             Open Geo Fence Here
