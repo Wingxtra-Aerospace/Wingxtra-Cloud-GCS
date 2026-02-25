@@ -1,0 +1,48 @@
+name: Lockfile and Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  lockfile-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies (bootstrap lockfile if needed)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "package-lock.json found; running npm ci"
+            npm ci
+          else
+            echo "package-lock.json missing; running npm install to generate lockfile"
+            npm install
+
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+            if git diff --quiet package-lock.json; then
+              echo "No package-lock.json changes detected after npm install"
+            else
+              git add package-lock.json
+              git commit -m "chore: bootstrap package-lock.json"
+              git push origin HEAD:master
+            fi
+          fi
+
+      - name: Build
+        run: npm run build
