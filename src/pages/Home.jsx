@@ -10,6 +10,7 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
@@ -29,22 +30,23 @@ import ClssAndruavUnitListArray from '../components/unit_controls/jsc_unitContro
 import ClssUnitParametersList from '../components/dialogs/jsc_unitParametersList.jsx';
 import ClssConfigGenerator from '../components/jsc_config_generator.jsx'
 import { ClssCVideoControl } from '../components/video/jsc_videoDisplayComponent.jsx';
-import { fn_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
-import { js_leafletmap } from '../js/js_leafletmap.js';
+import { fn_on_ready, fn_reset_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
 
 const jQuery = $;
 const Home = () => {
   const { t } = useTranslation('home'); // Use home namespace
+  const navigate = useNavigate();
 
   useEffect(() => {
     js_globals.CONST_MAP_EDITOR = false;
+    fn_reset_on_ready();
     fn_on_ready();
   }, []);
 
   const fn_openPlanningWithReturn = () => {
     const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     sessionStorage.setItem('flyViewReturnUrl', currentUrl || '/');
-    window.location.assign('/planning');
+    navigate('/planning');
   };
 
   return (

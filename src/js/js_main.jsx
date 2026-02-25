@@ -3378,6 +3378,10 @@ export function fn_submitShapes() {
 
 
 let fn_on_ready_called = false;
+export function fn_reset_on_ready() {
+	fn_on_ready_called = false;
+}
+
 export function fn_on_ready() {
 
 	if (fn_on_ready_called === true) return;
