@@ -650,11 +650,6 @@ class CAndruavMap3D {
                 this.fn_setMissionBaseLayerVisibility(false);
                 this.fn_refreshAltitudeVisuals();
             }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: event.lngLat.lat,
-                lng: event.lngLat.lng
-            });
         });
 
         this.m_map.on('move', () => {
@@ -678,60 +673,6 @@ class CAndruavMap3D {
                 lat: event.lngLat.lat,
                 lng: event.lngLat.lng
             });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('click', (mapClickEvent) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (mapClickEvent?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: mapClickEvent.lngLat.lat,
-                lng: mapClickEvent.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('click', (mapClickEvent) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (mapClickEvent?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: mapClickEvent.lngLat.lat,
-                lng: mapClickEvent.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
         });
 
         this.m_map.on('moveend', () => {
@@ -792,20 +733,6 @@ class CAndruavMap3D {
 
     fn_applyView(state) {
         this.fn_applyViewState(state);
-    }
-
-    fn_ensureBuildingsVisibleAtCurrentZoom() {
-        if (!this.m_map || !this.m_isReady) return;
-
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom)) return;
-
-        if (currentZoom < this.m_buildingVisibilityMinZoom) {
-            this.m_map.easeTo({
-                zoom: this.m_buildingVisibilityMinZoom,
-                duration: 350
-            });
-        }
     }
 
     fn_ensureBuildingsVisibleAtCurrentZoom() {
