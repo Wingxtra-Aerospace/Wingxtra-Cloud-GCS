@@ -674,29 +674,6 @@ class CAndruavMap3D {
             this.fn_refreshAltitudeVisuals();
         });
 
-        this.m_map.on('click', (event) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (event?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: event.lngLat.lat,
-                lng: event.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
         this.m_map.on('moveend', () => {
             const view = this.fn_getView();
             if (view) this.m_lastView = view;
