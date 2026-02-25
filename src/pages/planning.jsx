@@ -29,13 +29,8 @@ const Planning = () => {
 	js_globals.CONST_MAP_EDITOR = true;
 
 	useEffect(() => {
-		js_globals.CONST_MAP_EDITOR = true;
 		fn_on_ready();
 		fn_showMap3D();
-
-		return () => {
-			js_globals.CONST_MAP_EDITOR = false;
-		};
 	},
 	[]);
 
@@ -59,11 +54,11 @@ const Planning = () => {
 
 							<div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
 								<a
-							id="btn_flyView"
-							className="btn btn-sm btn-warning bi bi-airplane-fill"
-							href="./home"
-							title="Return to Fly View"
-						>
+									id="btn_flyView"
+									className="btn btn-sm btn-warning bi bi-airplane-fill"
+									href="./home"
+									title="Return to Fly View"
+								>
 									<strong className="ms-1">Fly View</strong>
 								</a>
 							</div>
