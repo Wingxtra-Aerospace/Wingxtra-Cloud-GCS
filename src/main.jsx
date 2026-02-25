@@ -1,6 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import ClssLoginControl from './components/jsc_cmp_login';
+import $ from 'jquery';
+
+import ClssLoginControl from './components/jsc_cmp_login.jsx';
+
+window.$ = $;
+window.jQuery = $;
 
 const rootElement = document.getElementById('root');
 
