@@ -14,8 +14,8 @@
 
 // Default Configuration
 export let CONST_TEST_MODE = true;
-export let CONST_PROD_MODE_IP = 'cloud.ardupilot.org';
-export let CONST_PROD_MODE_PORT = '8001';
+export let CONST_PROD_MODE_IP = 'airgap.droneengage.com';
+export let CONST_PROD_MODE_PORT = '19408';
 export let CONST_TEST_MODE_IP = '127.0.0.1';
 export let CONST_TEST_MODE_PORT = '19408';
 export let CONST_TEST_MODE_ENABLE_LOG = true;
@@ -45,11 +45,8 @@ export let CONST_ACCOUNT_URL_ENABLE = true;
 
 export let CONST_WEBSOCKET_BRIDGE_PORT = 8812;
 
-// Optional dedicated HTTP API base for health checks (example: https://host:port/h)
-export let CONST_HEALTH_API_BASE_URL = '';
-
 // CHOOSE YOUR MAP SOURCE
-export let CONST_MAP_LEAFLET_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+export let CONST_MAP_LEAFLET_URL = "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHNhYWQiLCJhIjoiY2tqZnIwNXRuMndvdTJ4cnV0ODQ4djZ3NiJ9.LKojA3YMrG34L93jRThEGQ";
 //export let CONST_MAP_LEAFLET_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 //export let CONST_MAP_LEAFLET_URL = "https://airgap.local:88/sat_{x}_{y}_{z}.png"; // LOCAL MAP
 
@@ -60,7 +57,6 @@ export let CONST_MAPBOX_STYLE = 'mapbox://styles/mapbox/standard-satellite';
 export let CONST_MAPBOX_3D_BUILDING_OPACITY = 0.45;
 export let CONST_MAPBOX_TERRAIN_EXAGGERATION = 1.0;
 export let CONST_MAPBOX_3D_BUILDING_COLOR = '#b7d1e6';
-export let CONST_MAPBOX_3D_BUILDING_MIN_ZOOM = 13;
 
 /**
  * Location of GCS are not sent over network. Only The existence of connected GCS are shared.
@@ -148,7 +144,6 @@ export function fn_applyRuntimeConfig(data) {
         if (data.CONST_WEBCONNECTOR_SECURE !== undefined) CONST_WEBCONNECTOR_SECURE = data.CONST_WEBCONNECTOR_SECURE;
         if (data.CONST_WEBCONNECTOR_BASE_PATH !== undefined) CONST_WEBCONNECTOR_BASE_PATH = data.CONST_WEBCONNECTOR_BASE_PATH;
         if (data.CONST_WEBCONNECTOR_ENABLE !== undefined) CONST_WEBCONNECTOR_ENABLE = data.CONST_WEBCONNECTOR_ENABLE;
-        if (data.CONST_HEALTH_API_BASE_URL !== undefined) CONST_HEALTH_API_BASE_URL = data.CONST_HEALTH_API_BASE_URL;
         
         if (data.CONST_ANDRUAV_URL_ENABLE !== undefined) CONST_ANDRUAV_URL_ENABLE = data.CONST_ANDRUAV_URL_ENABLE;
         if (data.CONST_ACCOUNT_URL_ENABLE !== undefined) CONST_ACCOUNT_URL_ENABLE = data.CONST_ACCOUNT_URL_ENABLE;
@@ -158,7 +153,6 @@ export function fn_applyRuntimeConfig(data) {
         if (data.CONST_MAPBOX_STYLE !== undefined) CONST_MAPBOX_STYLE = data.CONST_MAPBOX_STYLE;
         if (data.CONST_MAPBOX_3D_BUILDING_OPACITY !== undefined) CONST_MAPBOX_3D_BUILDING_OPACITY = data.CONST_MAPBOX_3D_BUILDING_OPACITY;
         if (data.CONST_MAPBOX_3D_BUILDING_COLOR !== undefined) CONST_MAPBOX_3D_BUILDING_COLOR = data.CONST_MAPBOX_3D_BUILDING_COLOR;
-        if (data.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM !== undefined) CONST_MAPBOX_3D_BUILDING_MIN_ZOOM = data.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM;
         if (data.CONST_MAPBOX_TERRAIN_EXAGGERATION !== undefined) CONST_MAPBOX_TERRAIN_EXAGGERATION = data.CONST_MAPBOX_TERRAIN_EXAGGERATION;
         if (data.CONST_DONT_BROADCAST_TO_GCSs !== undefined) CONST_DONT_BROADCAST_TO_GCSs = data.CONST_DONT_BROADCAST_TO_GCSs;
         if (data.CONST_DONT_BROADCAST_GCS_LOCATION !== undefined) CONST_DONT_BROADCAST_GCS_LOCATION = data.CONST_DONT_BROADCAST_GCS_LOCATION;

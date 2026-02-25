@@ -30,8 +30,18 @@ class CLeafLetAndruavMap {
     };
 
     fn_parseMapHash() {
+        const search = new URLSearchParams(window.location.search || '');
+        const mapParam = search.get('map');
+        if (mapParam) {
+            const values = mapParam.split('/').map(Number);
+            if (values.length >= 3 && values.every((v) => Number.isFinite(v))) {
+                const [zoom, lat, lng] = values;
+                return { zoom, lat, lng };
+            }
+        }
+
         const hash = (window.location.hash || '').replace(/^#/, '').trim();
-        if (!hash) return null;
+        if (!hash || hash.startsWith('/')) return null;
 
         const values = hash.split('/').map(Number);
         if (values.length < 3 || values.some(Number.isNaN)) return null;
@@ -49,10 +59,19 @@ class CLeafLetAndruavMap {
 
         const center = this.m_Map.getCenter();
         const zoom = this.m_Map.getZoom();
-        const hash = `${zoom.toFixed(2)}/${center.lat.toFixed(6)}/${center.lng.toFixed(6)}`;
+        const mapState = `${zoom.toFixed(2)}/${center.lat.toFixed(6)}/${center.lng.toFixed(6)}`;
 
-        if (window.location.hash !== `#${hash}`) {
-            window.history.replaceState(null, '', `#${hash}`);
+        if ((window.location.hash || '').startsWith('#/')) {
+            const url = new URL(window.location.href);
+            if (url.searchParams.get('map') !== mapState) {
+                url.searchParams.set('map', mapState);
+                window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+            }
+            return;
+        }
+
+        if (window.location.hash !== `#${mapState}`) {
+            window.history.replaceState(null, '', `#${mapState}`);
         }
     }
 
@@ -75,6 +94,10 @@ class CLeafLetAndruavMap {
         });
 
         window.addEventListener('hashchange', () => {
+            this.fn_applyHashToMap();
+        });
+
+        window.addEventListener('popstate', () => {
             this.fn_applyHashToMap();
         });
 
@@ -145,24 +168,11 @@ class CLeafLetAndruavMap {
             return;
         }
         
-        const primaryLayer = L.tileLayer(tileUrl, {
+        L.tileLayer(tileUrl, {
                 maxZoom: 22,
                 attribution: v_site_copyright,
                 id: 'mapbox.streets'
             }).addTo(this.m_Map);
-
-        const fallbackTileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        let fallbackAttached = false;
-        primaryLayer.on('tileerror', () => {
-            if (fallbackAttached) return;
-            fallbackAttached = true;
-            console.warn('[Leaflet] primary tile source failed, switching to fallback imagery');
-            this.m_Map.removeLayer(primaryLayer);
-            L.tileLayer(fallbackTileUrl, {
-                maxZoom: 22,
-                attribution: v_site_copyright,
-            }).addTo(this.m_Map);
-        });
         
 
         
