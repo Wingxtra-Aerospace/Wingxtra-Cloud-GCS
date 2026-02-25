@@ -86,6 +86,19 @@ class CAndruavMap3D {
         return Math.min(1.0, Math.max(0.05, configured));
     }
 
+    fn_getBuildingMinZoom() {
+        const configured = Number(js_siteConfig.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM);
+        if (Number.isFinite(configured) && configured >= 0) {
+            return configured;
+        }
+
+        if (Number.isFinite(this.m_buildingVisibilityMinZoom) && this.m_buildingVisibilityMinZoom >= 0) {
+            return this.m_buildingVisibilityMinZoom;
+        }
+
+        return 13;
+    }
+
     fn_applyTerrain() {
         if (!this.m_map) return;
 
@@ -607,11 +620,14 @@ class CAndruavMap3D {
             console.warn('Mapbox token is missing. Falling back to raster satellite style for 3D view.');
         }
 
+        const buildingMinZoom = this.fn_getBuildingMinZoom();
+
         this.m_map = new mapboxgl.Map({
             container: containerId,
             style: this.m_isFallbackStyle ? this.fn_getFallbackStyle() : configuredStyle,
             center: [-0.1870, 5.6037],
-            zoom: 11.5,
+            zoom: Math.max(11.5, buildingMinZoom),
+            minZoom: buildingMinZoom,
             pitch: 45,
             bearing: 0,
             antialias: true
@@ -712,7 +728,8 @@ class CAndruavMap3D {
 
         const lat = Number(state.lat);
         const lng = Number(state.lng);
-        const zoom = Number(state.zoom);
+        const minAllowedZoom = this.fn_getBuildingMinZoom();
+        const zoom = Math.max(Number(state.zoom), minAllowedZoom);
         const bearing = Number(state.bearing);
         const pitch = Number(state.pitch);
 
@@ -735,40 +752,11 @@ class CAndruavMap3D {
         this.fn_applyViewState(state);
     }
 
-    fn_ensureBuildingsVisibleAtCurrentZoom() {
-        if (!this.m_map || !this.m_isReady) return;
-
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom)) return;
-
-        if (currentZoom < this.m_buildingVisibilityMinZoom) {
-            this.m_map.easeTo({
-                zoom: this.m_buildingVisibilityMinZoom,
-                duration: 350
-            });
-        }
-    }
-
-    fn_adjustZoomForBuildingVisibility() {
-        if (!this.m_map || !this.m_isReady) return;
-
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom)) return;
-
-        if (currentZoom < this.m_buildingVisibilityMinZoom) {
-            this.m_map.easeTo({
-                zoom: this.m_buildingVisibilityMinZoom,
-                duration: 350
-            });
-        }
-    }
-
     fn_show() {
         this.m_isVisible = true;
         if (this.m_map) {
             this.m_map.resize();
             this.fn_setMissionBaseLayerVisibility(false);
-            this.fn_adjustZoomForBuildingVisibility();
             this.fn_refreshAltitudeVisuals();
         }
     }
