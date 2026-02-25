@@ -10,7 +10,7 @@ import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation , withTranslation} from 'react-i18next';
+import { useTranslation, withTranslation } from 'react-i18next';
 
 
 import { js_globals } from '../js/js_globals.js';
