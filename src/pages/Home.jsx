@@ -31,6 +31,7 @@ import ClssUnitParametersList from '../components/dialogs/jsc_unitParametersList
 import ClssConfigGenerator from '../components/jsc_config_generator.jsx'
 import { ClssCVideoControl } from '../components/video/jsc_videoDisplayComponent.jsx';
 import { fn_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
+import { js_leafletmap } from '../js/js_leafletmap.js';
 
 const jQuery = $;
 const Home = () => {
@@ -40,6 +41,26 @@ const Home = () => {
     js_globals.CONST_MAP_EDITOR = false;
     fn_on_ready();
   }, []);
+
+  const fn_openPlanningWithReturn = () => {
+    let returnUrl = '/';
+    try {
+      const center = js_leafletmap.fn_getCenter();
+      const zoom = js_leafletmap.fn_getZoom();
+      if (center && Number.isFinite(center.lat) && Number.isFinite(center.lng)) {
+        const params = new URLSearchParams({
+          zoom: String(zoom),
+          lat: String(center.lat),
+          lng: String(center.lng),
+        });
+        returnUrl = `/?${params.toString()}`;
+      }
+    } catch (_err) {
+      // ignore and fall back to root
+    }
+
+    sessionStorage.setItem('flyViewReturnUrl', returnUrl);
+  };
 
   return (
     <div>
@@ -64,8 +85,9 @@ const Home = () => {
                 <Link
                   id="btn_missionPlanner"
                   className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
-                  to="/mapeditor"
+                  to="/planning"
                   title="Mission Planner"
+                  onClick={fn_openPlanningWithReturn}
                 >
                   <strong className="ms-1">Plan</strong>
                 </Link>
