@@ -45,17 +45,14 @@
     "react-draggable": "^4.5.0",
     "react-i18next": "15.6.0",
     "react-router-dom": "6.30.3",
-    "react-scripts": "5.0.1",
     "react-simple-captcha": "^9.3.1",
     "recordrtc": "^5.6.2",
-    "underscore": "^1.13.6",
-    "@popperjs/core": "^2.11.8"
+    "underscore": "^1.13.6"
   },
   "scripts": {
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && HTTPS=true SSL_CRT_FILE=$WEB_SSL_KEY SSL_KEY_FILE=$WEB_SSL_KEY react-scripts start",
-    "build": "react-scripts build --mode production --config-overrides ./webpack.config.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint src",
     "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js",
     "render-build": "npm ci --legacy-peer-deps && npm run build",
@@ -105,12 +102,14 @@
     ]
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^8.57.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-webpack-plugin": "^5.0.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vite": "^6.1.0"
   },
   "overrides": {
     "ajv": "8.12.0",
