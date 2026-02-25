@@ -23,17 +23,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+      - name: Clean install
+        run: npm ci
 
       - name: Print AJV dependency tree
         run: npm run deps:ajv
 
       - name: Build
         run: npm run build
-
-      - name: Verify clean install and build
-        run: npm ci --legacy-peer-deps && npm run build
 
       - name: Commit updated lockfile
         run: |
