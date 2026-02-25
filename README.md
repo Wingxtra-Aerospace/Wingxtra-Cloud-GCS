@@ -57,7 +57,7 @@ The production-ready files will be generated in the `build/` directory.
 
 This project can be deployed as a **Web Service** on Render with these settings:
 
-- **Build Command:** `npm install && npm run build`
+- **Build Command:** `npm ci && npm run build`
 - **Start Command:** `npm start`
 
 The server uses `process.env.PORT` (required by Render) and defaults to plain HTTP in production.
