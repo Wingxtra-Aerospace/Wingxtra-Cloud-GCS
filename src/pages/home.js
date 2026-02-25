@@ -9,7 +9,6 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
@@ -59,14 +58,14 @@ const Home = () => {
               </div>
 
               <div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-                <Link
+                <a
                   id="btn_missionPlanner"
                   className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
-                  to="/mapeditor"
+                  href="./mapeditor"
                   title="Mission Planner"
                 >
                   <strong className="ms-1">Plan</strong>
-                </Link>
+                </a>
               </div>
 
               <div id="map_overlay_right_tools" className="css_map_overlay_right_tools">
@@ -131,7 +130,7 @@ const Home = () => {
               </div>
             </div>
             <div id="modal_fpv_img" className="form-group text-center">
-              <img id="unitImg" className="img-rounded" alt="camera" src="/images/camera_img.png" />
+              <img id="unitImg" className="img-rounded" alt="camera" src="/public/images/camera_img.png" />
             </div>
             <div id="modal_fpv_footer" className="form-group text-center localcontainer">
               <button id="unitImg_save" type="button" className="btn btn-danger">
