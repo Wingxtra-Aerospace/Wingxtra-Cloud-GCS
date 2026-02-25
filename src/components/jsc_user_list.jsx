@@ -1,7 +1,9 @@
 import React    from 'react';
+import $ from 'jquery';
 
 import {fn_do_modal_confirmation} from '../js/js_main'
 
+const jQuery = $;
 class ClssUserEntry extends  React.Component {
 
     constructor()

@@ -10,6 +10,7 @@ import {js_eventEmitter} from '../../js/js_eventEmitter.js'
 import {fn_gotoUnit_byPartyID, fn_doYAW} from '../../js/js_main.js'
 import * as js_helpers from '../../js/js_helpers.js';
 
+const jQuery = $;
 export default class ClssYawDialog extends React.Component
 {
     constructor()
