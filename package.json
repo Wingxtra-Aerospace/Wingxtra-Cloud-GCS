@@ -27,6 +27,7 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "buffer": "^6.0.3",
+    "express": "^4.21.2",
     "file-saver": "^2.0.5",
     "https": "^1.0.0",
     "i18next": "^25.5.2",
@@ -51,12 +52,13 @@
     "underscore": "^1.13.6"
   },
   "scripts": {
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && HTTPS=true SSL_CRT_FILE=$WEB_SSL_KEY SSL_KEY_FILE=$WEB_SSL_KEY react-scripts start",
-    "build": "react-scripts build --mode production --config-overrides ./webpack.config.js",
+    "start": "node server.js",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src",
-    "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js"
+    "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js",
+    "start:dev": "export NODE_OPTIONS=--openssl-legacy-provider && HTTPS=true SSL_CRT_FILE=$WEB_SSL_CRT SSL_KEY_FILE=$WEB_SSL_KEY react-scripts start"
   },
   "eslintConfig": {
     "extends": [
