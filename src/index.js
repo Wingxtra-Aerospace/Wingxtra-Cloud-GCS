@@ -7,7 +7,7 @@ async function fn_startApp() {
 
   const React = (await import('react')).default;
   const ReactDOM = await import('react-dom/client');
-  const { HashRouter, Routes, Route } = await import('react-router-dom');
+  const { BrowserRouter, Routes, Route } = await import('react-router-dom');
   const { I18nextProvider } = await import('react-i18next');
   const i18n = (await import('./js/i18n')).default;
 
@@ -23,7 +23,7 @@ async function fn_startApp() {
   function App2() {
 
     return (
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
@@ -38,7 +38,7 @@ async function fn_startApp() {
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     );
   }
 
