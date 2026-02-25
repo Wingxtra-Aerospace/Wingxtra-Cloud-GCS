@@ -1,47 +1,43 @@
-name: Bootstrap lockfile and build
+name: Lockfile and Build
 
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
-
-permissions:
-  contents: write
+    branches:
+      - master
 
 jobs:
-  build:
+  lockfile-and-build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Use Node.js 20 (no cache)
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
-      - name: Configure git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Install dependencies (bootstrap lockfile if missing)
-        shell: bash
-        run: |
-          if [ -f package-lock.json ]; then
-            echo "package-lock.json exists -> using npm ci"
-            npm ci
-          else
-            echo "package-lock.json missing -> running npm install to generate it"
-            npm install
-            echo "Committing generated package-lock.json"
-            git add package-lock.json
-            git commit -m "CI: add package-lock.json" || echo "Nothing to commit"
-            git push
-          fi
+      - name: Install dependencies
+        run: npm install
 
       - name: Build
         run: npm run build
+
+      - name: Commit updated lockfile
+        run: |
+          if git diff --quiet package-lock.json; then
+            echo "No package-lock.json changes detected"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: update package-lock.json"
+          git push origin HEAD:master
