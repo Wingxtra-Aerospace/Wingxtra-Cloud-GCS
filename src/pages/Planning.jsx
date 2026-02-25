@@ -26,6 +26,7 @@ import { fn_on_ready, fn_reset_on_ready, fn_showMap3D, fn_toggleMapMode } from '
 const jQuery = $;
 const Planning = () => {
 	const { t } = useTranslation('home'); // Use home namespace
+	const navigate = useNavigate();
 
 
 	js_globals.CONST_MAP_EDITOR = true;

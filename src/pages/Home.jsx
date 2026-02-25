@@ -34,6 +34,7 @@ import { fn_on_ready, fn_reset_on_ready, fn_showSettings, fn_toggleMapMode, fn_s
 const jQuery = $;
 const Home = () => {
   const { t } = useTranslation('home'); // Use home namespace
+  const navigate = useNavigate();
 
   useEffect(() => {
     js_globals.CONST_MAP_EDITOR = false;
