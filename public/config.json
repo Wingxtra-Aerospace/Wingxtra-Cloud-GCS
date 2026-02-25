@@ -80,17 +80,17 @@
     //"CONST_MAP_LEAFLET_URL": "https://tiles.stadiamaps.com/data/imagery/{z}/{x}/{y}.jpg?api_key=X",
     //"CONST_MAP_LEAFLET_URL": "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png?api_key=X",
 
-    /**
+   /**
     * WEBRTC Video Streaming Settings
     */
-    "CONST_ICE_SERVERS": [
-        {
-            "urls": "turn:cloud.ardupilot.org",
-            "credential": "1234",
-            "username": "andruav_ap"
-        },
-        {
-            "urls": "stun:stun1.l.google.com:19302"
-        }
-    ]
+   "CONST_ICE_SERVERS":[
+      {
+         "urls":"turn:cloud.ardupilot.org",
+         "credential":"1234",
+         "username":"andruav_ap"
+      },
+      {
+         "urls":"stun:stun1.l.google.com:19302"
+      }
+   ]
 }
