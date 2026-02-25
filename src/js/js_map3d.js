@@ -22,6 +22,7 @@ class CAndruavMap3D {
         this.m_altitudePathOverlaySvg = null;
         this.m_lastMissionPlans = null;
         this.m_lastActiveMissionId = null;
+        this.m_buildingVisibilityMinZoom = 13;
         this.m_isFallbackStyle = false;
     }
 
@@ -139,7 +140,7 @@ class CAndruavMap3D {
             source: 'mapbox-buildings',
             'source-layer': 'building',
             type: 'fill-extrusion',
-            minzoom: 10,
+            minzoom: 0,
             paint: {
                 'fill-extrusion-color': buildingColor,
                 'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
@@ -649,6 +650,23 @@ class CAndruavMap3D {
                 this.fn_setMissionBaseLayerVisibility(false);
                 this.fn_refreshAltitudeVisuals();
             }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
         });
 
         this.m_map.on('click', (event) => {
@@ -734,11 +752,26 @@ class CAndruavMap3D {
         this.fn_applyViewState(state);
     }
 
+    fn_ensureBuildingsVisibleAtCurrentZoom() {
+        if (!this.m_map || !this.m_isReady) return;
+
+        const currentZoom = Number(this.m_map.getZoom());
+        if (!Number.isFinite(currentZoom)) return;
+
+        if (currentZoom < this.m_buildingVisibilityMinZoom) {
+            this.m_map.easeTo({
+                zoom: this.m_buildingVisibilityMinZoom,
+                duration: 350
+            });
+        }
+    }
+
     fn_show() {
         this.m_isVisible = true;
         if (this.m_map) {
             this.m_map.resize();
             this.fn_setMissionBaseLayerVisibility(false);
+            this.fn_ensureBuildingsVisibleAtCurrentZoom();
             this.fn_refreshAltitudeVisuals();
         }
     }
