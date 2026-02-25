@@ -1,4 +1,5 @@
 import '../css/bootstrap.min.css';
+import $ from 'jquery';
 import 'leaflet/dist/leaflet.css';
 import '../css/bootstrap-icons/font/bootstrap-icons.css';
 import '../css/css_styles.css';
@@ -31,6 +32,7 @@ import ClssConfigGenerator from '../components/jsc_config_generator.jsx'
 import { ClssCVideoControl } from '../components/video/jsc_videoDisplayComponent.jsx';
 import { fn_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
 
+const jQuery = $;
 const Home = () => {
   const { t } = useTranslation('home'); // Use home namespace
 

@@ -6,6 +6,7 @@ import * as js_helpers from './js_helpers'
 import $ from 'jquery';
 
 
+const jQuery = $;
 class v_adsbObject {
     constructor() {
 

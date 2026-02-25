@@ -1,4 +1,5 @@
 import React    from 'react';
+import $ from 'jquery';
 
 import * as js_helpers from '../../../js/js_helpers.js'
 import {js_globals} from '../../../js/js_globals.js';
@@ -13,6 +14,7 @@ import {js_leafletmap} from '../../../js/js_leafletmap.js'
 import {fn_do_modal_confirmation, fn_submitShapes, fn_deleteShapesinDB} from '../../../js/js_main.js'
 
 
+const jQuery = $;
 const res_FenceClssGlobalSettingsControl =
 {
 	'en':

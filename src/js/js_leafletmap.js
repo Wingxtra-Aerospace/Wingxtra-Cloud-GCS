@@ -16,6 +16,7 @@ import {EVENTS as js_event} from './js_eventList.js'
 import {js_eventEmitter} from './js_eventEmitter'
 
 import {fn_contextMenu} from './js_main'
+const jQuery = $;
 class CLeafLetAndruavMap {
 
     constructor() {

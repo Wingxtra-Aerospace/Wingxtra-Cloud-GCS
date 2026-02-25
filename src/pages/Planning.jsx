@@ -1,4 +1,5 @@
 import '../css/bootstrap.min.css';  // my theme
+import $ from 'jquery';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.pm/dist/leaflet.pm.css';
 import '../css/bootstrap-icons/font/bootstrap-icons.css'
@@ -23,6 +24,7 @@ import { fn_on_ready, fn_showMap3D, fn_toggleMapMode } from '../js/js_main'
 
 
 
+const jQuery = $;
 const Planning = () => {
 	const { t } = useTranslation('home'); // Use home namespace
 

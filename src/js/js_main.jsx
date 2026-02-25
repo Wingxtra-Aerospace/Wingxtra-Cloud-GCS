@@ -38,6 +38,7 @@ import ClssMainUnitPopup from '../components/popups/jsc_main_unit_popup.jsx'
 import { js_websocket_bridge } from './CPC/js_websocket_bridge.js'
 import i18n from './i18n.js';
 
+const jQuery = $;
 var oldAppend = $.fn.append;
 
 $.fn.append = function ($el) {
