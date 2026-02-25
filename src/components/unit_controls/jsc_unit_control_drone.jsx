@@ -11,7 +11,7 @@ import { mavlink20 } from '../../js/js_mavlink_v2.js';
 import {
     fn_requestWayPoints,
     fn_clearWayPoints, fn_putWayPoints
-} from '../../js/js_main.jsx'
+} from '../../js/js_main.js'
 
 import * as js_andruavMessages from '../../js/protocol/js_andruavMessages'
 
