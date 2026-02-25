@@ -699,6 +699,7 @@ class CAndruavMap3D {
             }
             this.fn_applyTerrain();
             this.fn_applyBuildings();
+            this.fn_ensureMissionLayers();
         });
 
         this.m_map.on('error', (mapErrorEvent) => {
@@ -820,7 +821,10 @@ class CAndruavMap3D {
         this.m_isVisible = true;
         if (this.m_map) {
             this.m_map.resize();
+            this.fn_applyBuildings();
+            this.fn_ensureMissionLayers();
             this.fn_setMissionBaseLayerVisibility(false);
+            this.fn_updateBuildingLayerVisibility();
             this.fn_refreshAltitudeVisuals();
         }
     }

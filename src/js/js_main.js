@@ -646,12 +646,7 @@ export function fn_showMap() {
 	js_map3d.fn_hide();
 	js_leafletmap.fn_applyViewState(map3dState);
 	js_leafletmap.fn_invalidateSize();
-	const btn = $('#btn_toggleMapMode');
-	if (btn.length > 0) {
-		btn.removeClass('btn-danger bi-map').addClass('btn-secondary bi-badge-3d');
-		btn.attr('title', 'Switch to 3D map');
-		btn.find('strong').text('3D Map');
-	}
+	fn_updateMapToggleButton(false);
 }
 
 export function fn_showMap3D() {
@@ -671,12 +666,15 @@ export function fn_showMap3D() {
 	} else {
 		fn_syncFlyViewMissionsIn3D();
 	}
-	const btn = $('#btn_toggleMapMode');
-	if (btn.length > 0) {
-		btn.removeClass('btn-secondary bi-badge-3d').addClass('btn-danger bi-map');
-		btn.attr('title', 'Switch to 2D map');
-		btn.find('strong').text('2D Map');
-	}
+	setTimeout(() => {
+		js_map3d.fn_show();
+		if (js_globals.CONST_MAP_EDITOR === true) {
+			fn_syncPlannerMissionIn3D();
+		} else {
+			fn_syncFlyViewMissionsIn3D();
+		}
+	}, 150);
+	fn_updateMapToggleButton(true);
 }
 
 export function fn_showSettings() {
