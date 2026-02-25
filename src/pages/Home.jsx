@@ -10,7 +10,6 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
@@ -41,6 +40,12 @@ const Home = () => {
     fn_on_ready();
   }, []);
 
+  const fn_openPlanningWithReturn = () => {
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    sessionStorage.setItem('flyViewReturnUrl', currentUrl || '/');
+    window.location.assign('/planning');
+  };
+
   return (
     <div>
       <ClssHeaderControl />
@@ -61,14 +66,15 @@ const Home = () => {
               </div>
 
               <div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-                <Link
+                <button
                   id="btn_missionPlanner"
+                  type="button"
                   className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
-                  to="/mapeditor"
                   title="Mission Planner"
+                  onClick={fn_openPlanningWithReturn}
                 >
                   <strong className="ms-1">Plan</strong>
-                </Link>
+                </button>
               </div>
 
               <div id="map_overlay_right_tools" className="css_map_overlay_right_tools">

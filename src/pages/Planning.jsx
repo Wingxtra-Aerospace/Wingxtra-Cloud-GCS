@@ -12,7 +12,6 @@ import 'leaflet.pm';
 import 'jquery-ui-dist/jquery-ui.min.js';
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
 
 import { js_globals } from '../js/js_globals.js'
@@ -37,6 +36,12 @@ const Planning = () => {
 	},
 	[]);
 
+	const fn_returnToFlyView = () => {
+		const storedReturnUrl = sessionStorage.getItem('flyViewReturnUrl');
+		sessionStorage.removeItem('flyViewReturnUrl');
+		window.location.assign(storedReturnUrl || '/');
+	};
+
 	return (
 		<div className="planning-page">
 			<div id="rowheader" className="row mt-0 me-0 mw-0 mb-5">
@@ -56,14 +61,15 @@ const Planning = () => {
 							</div>
 
 							<div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-								<Link
+								<button
 									id="btn_flyView"
+									type="button"
 									className="btn btn-sm btn-warning bi bi-airplane-fill"
-									to="/home"
 									title="Return to Fly View"
+									onClick={fn_returnToFlyView}
 								>
 									<strong className="ms-1">Fly View</strong>
-								</Link>
+								</button>
 							</div>
 
 
