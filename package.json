@@ -58,7 +58,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint src",
     "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js",
-    "render-build": "npm install && npm run build",
+    "render-build": "npm ci --legacy-peer-deps && npm run build",
     "deps:ajv": "npm ls ajv ajv-keywords ajv-formats schema-utils --all || true"
   },
   "eslintConfig": {
