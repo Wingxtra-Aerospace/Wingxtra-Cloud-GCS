@@ -1,47 +1,47 @@
-name: Lockfile and Build
+name: Bootstrap lockfile and build
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
+    branches: [ master ]
+
+permissions:
+  contents: write
 
 jobs:
-  lockfile-and-build:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+          cache: "npm"
 
-      - name: Install dependencies (bootstrap lockfile if needed)
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies (bootstrap lockfile if missing)
+        shell: bash
         run: |
           if [ -f package-lock.json ]; then
-            echo "package-lock.json found; running npm ci"
+            echo "package-lock.json exists -> using npm ci"
             npm ci
           else
-            echo "package-lock.json missing; running npm install to generate lockfile"
+            echo "package-lock.json missing -> running npm install to generate it"
             npm install
-
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-            if git diff --quiet package-lock.json; then
-              echo "No package-lock.json changes detected after npm install"
-            else
-              git add package-lock.json
-              git commit -m "chore: bootstrap package-lock.json"
-              git push origin HEAD:master
-            fi
+            echo "Committing generated package-lock.json"
+            git add package-lock.json
+            git commit -m "CI: add package-lock.json" || echo "Nothing to commit"
+            git push
           fi
 
       - name: Build
