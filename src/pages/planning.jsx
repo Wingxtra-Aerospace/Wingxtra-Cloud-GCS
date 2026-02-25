@@ -29,13 +29,8 @@ const Planning = () => {
 	js_globals.CONST_MAP_EDITOR = true;
 
 	useEffect(() => {
-		js_globals.CONST_MAP_EDITOR = true;
 		fn_on_ready();
 		fn_showMap3D();
-
-		return () => {
-			js_globals.CONST_MAP_EDITOR = false;
-		};
 	},
 	[]);
 
