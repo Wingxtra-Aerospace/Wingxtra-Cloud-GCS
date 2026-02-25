@@ -55,7 +55,6 @@ var info_unit_context_popup = null;
 let selectedMissionFilesToRead = "";
 let selectedMissionFilesToWrite = "";
 let g_lastMap3DViewState = null;
-let g_isMap3DMode = false;
 
 let g_flyViewMissionPlans3D = {};
 
@@ -609,8 +608,6 @@ export function fn_showControl() {
 // -----------------------------------------------------------------------------
 
 export function fn_updateMapToggleButton(is3DVisible) {
-	g_isMap3DMode = (is3DVisible === true);
-
 	const btn = $('#btn_toggleMapMode');
 	if (btn.length === 0) return;
 
@@ -629,7 +626,8 @@ export function fn_updateMapToggleButton(is3DVisible) {
 
 
 export function fn_toggleMapMode() {
-	if (g_isMap3DMode === true) {
+	const is3DVisible = $('#div_map3d_view').is(':visible');
+	if (is3DVisible === true) {
 		fn_showMap();
 	} else {
 		fn_showMap3D();
@@ -639,7 +637,6 @@ export function fn_toggleMapMode() {
 
 
 export function fn_showMap() {
-	g_isMap3DMode = false;
 	const map3dState = js_map3d.fn_getViewState();
 	g_lastMap3DViewState = map3dState;
 
@@ -649,11 +646,15 @@ export function fn_showMap() {
 	js_map3d.fn_hide();
 	js_leafletmap.fn_applyViewState(map3dState);
 	js_leafletmap.fn_invalidateSize();
-	fn_updateMapToggleButton(false);
+	const btn = $('#btn_toggleMapMode');
+	if (btn.length > 0) {
+		btn.removeClass('btn-danger bi-map').addClass('btn-secondary bi-badge-3d');
+		btn.attr('title', 'Switch to 3D map');
+		btn.find('strong').text('3D Map');
+	}
 }
 
 export function fn_showMap3D() {
-	g_isMap3DMode = true;
 	const map2dState = js_leafletmap.fn_getViewState();
 	if (g_lastMap3DViewState != null) {
 		map2dState.bearing = g_lastMap3DViewState.bearing;
@@ -670,25 +671,12 @@ export function fn_showMap3D() {
 	} else {
 		fn_syncFlyViewMissionsIn3D();
 	}
-	setTimeout(() => {
-		js_map3d.fn_show();
-		if (js_globals.CONST_MAP_EDITOR === true) {
-			fn_syncPlannerMissionIn3D();
-		} else {
-			fn_syncFlyViewMissionsIn3D();
-		}
-	}, 150);
-
-	setTimeout(() => {
-		if (g_isMap3DMode !== true) return;
-		if (js_globals.CONST_MAP_EDITOR === true) {
-			fn_syncPlannerMissionIn3D();
-		} else {
-			fn_syncFlyViewMissionsIn3D();
-		}
-	}, 450);
-
-	fn_updateMapToggleButton(true);
+	const btn = $('#btn_toggleMapMode');
+	if (btn.length > 0) {
+		btn.removeClass('btn-secondary bi-badge-3d').addClass('btn-danger bi-map');
+		btn.attr('title', 'Switch to 2D map');
+		btn.find('strong').text('2D Map');
+	}
 }
 
 export function fn_showSettings() {
@@ -3389,13 +3377,10 @@ export function fn_submitShapes() {
 
 
 let fn_on_ready_called = false;
-let fn_on_ready_last_map_editor_mode = null;
 export function fn_on_ready() {
 
-	const c_isMapEditor = (js_globals.CONST_MAP_EDITOR === true);
-	if ((fn_on_ready_called === true) && (fn_on_ready_last_map_editor_mode === c_isMapEditor)) return;
+	if (fn_on_ready_called === true) return;
 	fn_on_ready_called = true;
-	fn_on_ready_last_map_editor_mode = c_isMapEditor;
 
 	$(function () {
 		$('head').append('<link href="/images/de/favicon.ico" rel="shortcut icon" type="image/x-icon" />');
@@ -3436,7 +3421,6 @@ export function fn_on_ready() {
 
 		js_eventEmitter.fn_subscribe(js_event.EE_mapMissionUpdate, this, fn_syncPlannerMissionIn3D);
 		js_eventEmitter.fn_subscribe(js_event.EE_onPlanToggle, this, fn_syncPlannerMissionIn3D);
-		js_eventEmitter.fn_subscribe(js_event.EE_onShapeCreated, this, fn_syncPlannerMissionIn3D);
 		js_eventEmitter.fn_subscribe(js_event.EE_onShapeEdited, this, fn_syncPlannerMissionIn3D);
 		js_eventEmitter.fn_subscribe(js_event.EE_onShapeDeleted, this, fn_syncPlannerMissionIn3D);
 		fn_syncPlannerMissionIn3D();
