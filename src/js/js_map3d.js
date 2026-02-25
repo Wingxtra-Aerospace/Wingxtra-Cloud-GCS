@@ -733,11 +733,14 @@ class CAndruavMap3D {
             console.warn('Mapbox token is missing. Falling back to raster satellite style for 3D view.');
         }
 
+        const buildingMinZoom = this.fn_getBuildingMinZoom();
+
         this.m_map = new mapboxgl.Map({
             container: containerId,
             style: this.m_isFallbackStyle ? this.fn_getFallbackStyle() : configuredStyle,
             center: [-0.1870, 5.6037],
-            zoom: 11.5,
+            zoom: Math.max(11.5, buildingMinZoom),
+            minZoom: buildingMinZoom,
             pitch: 45,
             bearing: 0,
             antialias: true
@@ -842,7 +845,8 @@ class CAndruavMap3D {
 
         const lat = Number(state.lat);
         const lng = Number(state.lng);
-        const zoom = Number(state.zoom);
+        const minAllowedZoom = this.fn_getBuildingMinZoom();
+        const zoom = Math.max(Number(state.zoom), minAllowedZoom);
         const bearing = Number(state.bearing);
         const pitch = Number(state.pitch);
 
