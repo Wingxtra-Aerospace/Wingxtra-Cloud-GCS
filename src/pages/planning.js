@@ -11,6 +11,7 @@ import 'leaflet.pm';
 import 'jquery-ui-dist/jquery-ui.min.js';
 
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
 
 import { js_globals } from '../js/js_globals.js'
@@ -53,14 +54,14 @@ const Planning = () => {
 							</div>
 
 							<div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-								<a
+								<Link
 									id="btn_flyView"
 									className="btn btn-sm btn-warning bi bi-airplane-fill"
-									href="./home"
+									to="/home"
 									title="Return to Fly View"
 								>
 									<strong className="ms-1">Fly View</strong>
-								</a>
+								</Link>
 							</div>
 
 

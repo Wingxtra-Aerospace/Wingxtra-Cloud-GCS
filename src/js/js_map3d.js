@@ -192,10 +192,10 @@ class CAndruavMap3D {
         if (this.m_missionLayerHandlersBound === true) return;
         if (!this.m_map.getLayer(this.m_missionPointLayerId)) return;
 
-        this.m_map.on('click', this.m_missionPointLayerId, (e) => {
+        this.m_map.on('click', this.m_missionPointLayerId, (event) => {
             if (typeof this.m_plannerSelectWaypointHandler !== 'function') return;
 
-            const feature = e?.features?.[0];
+            const feature = event?.features?.[0];
             const missionId = feature?.properties?.missionId;
             const order = Number(feature?.properties?.order);
             if (missionId == null || !Number.isFinite(order) || order <= 0) return;
@@ -593,18 +593,18 @@ class CAndruavMap3D {
             }
         });
 
-        this.m_map.on('click', (e) => {
+        this.m_map.on('click', (event) => {
             if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
                 return;
             }
 
-            if (e?.originalEvent?.shiftKey !== true) {
+            if (event?.originalEvent?.shiftKey !== true) {
                 return;
             }
 
             this.m_plannerCreateWaypointHandler({
-                lat: e.lngLat.lat,
-                lng: e.lngLat.lng
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
             });
         });
 
@@ -614,72 +614,6 @@ class CAndruavMap3D {
 
         this.m_map.on('render', () => {
             this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('click', (e) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (e?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: e.lngLat.lat,
-                lng: e.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('click', (e) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (e?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: e.lngLat.lat,
-                lng: e.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        // single move handler (you had it duplicated)
-        this.m_map.on('move', () => {
-            this.fn_scheduleAltitudePathOverlayRender();
-        });
-
-        this.m_map.on('click', (evt) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') return;
-            if (evt?.originalEvent?.shiftKey !== true) return;
-
-            this.m_plannerCreateWaypointHandler({
-                lat: evt.lngLat.lat,
-                lng: evt.lngLat.lng
-            });
-        });
-
-        this.m_map.on('render', () => {
-            if (this.m_isVisible !== true) return;
-            this.fn_scheduleAltitudePathOverlayRender();
         });
 
         this.m_map.on('moveend', () => {
