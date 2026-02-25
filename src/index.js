@@ -8,11 +8,13 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 
-import AppRouter from './AppRouter.jsx';
-import i18n from './js/i18n.js';
-import { fn_loadConfig } from './js/js_siteConfig.js';
-
 async function startApp() {
+  const [{ default: AppRouter }, { default: i18n }, { fn_loadConfig }] = await Promise.all([
+    import('./AppRouter.jsx'),
+    import('./js/i18n.js'),
+    import('./js/js_siteConfig.js'),
+  ]);
+
   await fn_loadConfig();
 
   const rootElement = document.getElementById('root');
@@ -29,4 +31,6 @@ async function startApp() {
   );
 }
 
-startApp();
+startApp().catch((error) => {
+  console.error('Fatal startup error:', error);
+});
