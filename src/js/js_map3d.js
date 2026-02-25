@@ -215,10 +215,10 @@ class CAndruavMap3D {
         if (this.m_missionLayerHandlersBound === true) return;
         if (!this.m_map.getLayer(this.m_missionPointLayerId)) return;
 
-        this.m_map.on('click', this.m_missionPointLayerId, (event) => {
+        this.m_map.on('click', this.m_missionPointLayerId, (mapLayerClickEvent) => {
             if (typeof this.m_plannerSelectWaypointHandler !== 'function') return;
 
-            const feature = event?.features?.[0];
+            const feature = mapLayerClickEvent?.features?.[0];
             const missionId = feature?.properties?.missionId;
             const order = Number(feature?.properties?.order);
             if (missionId == null || !Number.isFinite(order) || order <= 0) return;
@@ -711,6 +711,29 @@ class CAndruavMap3D {
             this.fn_refreshAltitudeVisuals();
         });
 
+        this.m_map.on('click', (mapClickEvent) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (mapClickEvent?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: mapClickEvent.lngLat.lat,
+                lng: mapClickEvent.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
         this.m_map.on('moveend', () => {
             const view = this.fn_getView();
             if (view) this.m_lastView = view;
@@ -799,12 +822,26 @@ class CAndruavMap3D {
         }
     }
 
+    fn_adjustZoomForBuildingVisibility() {
+        if (!this.m_map || !this.m_isReady) return;
+
+        const currentZoom = Number(this.m_map.getZoom());
+        if (!Number.isFinite(currentZoom)) return;
+
+        if (currentZoom < this.m_buildingVisibilityMinZoom) {
+            this.m_map.easeTo({
+                zoom: this.m_buildingVisibilityMinZoom,
+                duration: 350
+            });
+        }
+    }
+
     fn_show() {
         this.m_isVisible = true;
         if (this.m_map) {
             this.m_map.resize();
             this.fn_setMissionBaseLayerVisibility(false);
-            this.fn_ensureBuildingsVisibleAtCurrentZoom();
+            this.fn_adjustZoomForBuildingVisibility();
             this.fn_refreshAltitudeVisuals();
         }
     }
