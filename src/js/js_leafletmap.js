@@ -30,18 +30,8 @@ class CLeafLetAndruavMap {
     };
 
     fn_parseMapHash() {
-        const search = new URLSearchParams(window.location.search || '');
-        const mapParam = search.get('map');
-        if (mapParam) {
-            const values = mapParam.split('/').map(Number);
-            if (values.length >= 3 && values.every((v) => Number.isFinite(v))) {
-                const [zoom, lat, lng] = values;
-                return { zoom, lat, lng };
-            }
-        }
-
         const hash = (window.location.hash || '').replace(/^#/, '').trim();
-        if (!hash || hash.startsWith('/')) return null;
+        if (!hash) return null;
 
         const values = hash.split('/').map(Number);
         if (values.length < 3 || values.some(Number.isNaN)) return null;
@@ -59,19 +49,10 @@ class CLeafLetAndruavMap {
 
         const center = this.m_Map.getCenter();
         const zoom = this.m_Map.getZoom();
-        const mapState = `${zoom.toFixed(2)}/${center.lat.toFixed(6)}/${center.lng.toFixed(6)}`;
+        const hash = `${zoom.toFixed(2)}/${center.lat.toFixed(6)}/${center.lng.toFixed(6)}`;
 
-        if ((window.location.hash || '').startsWith('#/')) {
-            const url = new URL(window.location.href);
-            if (url.searchParams.get('map') !== mapState) {
-                url.searchParams.set('map', mapState);
-                window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
-            }
-            return;
-        }
-
-        if (window.location.hash !== `#${mapState}`) {
-            window.history.replaceState(null, '', `#${mapState}`);
+        if (window.location.hash !== `#${hash}`) {
+            window.history.replaceState(null, '', `#${hash}`);
         }
     }
 
@@ -94,10 +75,6 @@ class CLeafLetAndruavMap {
         });
 
         window.addEventListener('hashchange', () => {
-            this.fn_applyHashToMap();
-        });
-
-        window.addEventListener('popstate', () => {
             this.fn_applyHashToMap();
         });
 
