@@ -89,7 +89,7 @@ class CAndruavMap3D {
         return Math.min(1.0, Math.max(0.05, configured));
     }
 
-    fn_getBuildingCaptureThresholdZoom() {
+    fn_getBuildingMinZoom() {
         const configured = Number(js_siteConfig.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM);
         if (Number.isFinite(configured) && configured >= 0) {
             return configured;
@@ -168,112 +168,6 @@ class CAndruavMap3D {
             }
         }, beforeLayerId);
 
-        this.fn_ensureCachedBuildingLayer();
-        this.fn_captureBuildingsForLowZoom();
-        this.fn_updateBuildingLayerVisibility();
-    }
-
-    fn_ensureCachedBuildingLayer() {
-        if (!this.m_map) return;
-
-        if (!this.m_map.getSource(this.m_cachedBuildingSourceId)) {
-            this.m_map.addSource(this.m_cachedBuildingSourceId, {
-                type: 'geojson',
-                data: {
-                    type: 'FeatureCollection',
-                    features: []
-                }
-            });
-        }
-
-        if (!this.m_map.getLayer(this.m_cachedBuildingLayerId)) {
-            const buildingOpacity = this.fn_getBuildingOpacity();
-            const buildingColor = js_siteConfig.CONST_MAPBOX_3D_BUILDING_COLOR || '#e0e0e0';
-            const beforeLayerId = this.fn_getFirstSymbolLayerId();
-            this.m_map.addLayer({
-                id: this.m_cachedBuildingLayerId,
-                source: this.m_cachedBuildingSourceId,
-                type: 'fill-extrusion',
-                minzoom: 0,
-                paint: {
-                    'fill-extrusion-color': ['coalesce', ['get', 'color'], buildingColor],
-                    'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
-                    'fill-extrusion-base': ['coalesce', ['get', 'min_height'], 0],
-                    'fill-extrusion-opacity': buildingOpacity
-                },
-                layout: {
-                    visibility: 'none'
-                }
-            }, beforeLayerId);
-        }
-    }
-
-    fn_updateBuildingLayerVisibility() {
-        if (!this.m_map || this.m_isFallbackStyle === true) return;
-
-        const zoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(zoom)) return;
-
-        const thresholdZoom = this.fn_getBuildingCaptureThresholdZoom();
-        const showCachedLayer = zoom < thresholdZoom;
-
-        if (this.m_map.getLayer('add-3d-buildings')) {
-            this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', showCachedLayer ? 'none' : 'visible');
-        }
-
-        if (this.m_map.getLayer(this.m_cachedBuildingLayerId)) {
-            this.m_map.setLayoutProperty(this.m_cachedBuildingLayerId, 'visibility', showCachedLayer ? 'visible' : 'none');
-        }
-    }
-
-    fn_captureBuildingsForLowZoom() {
-        if (!this.m_map || this.m_isFallbackStyle === true) return;
-
-        const thresholdZoom = this.fn_getBuildingCaptureThresholdZoom();
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom) || currentZoom < thresholdZoom) return;
-
-        const center = this.m_map.getCenter();
-        const cacheKey = `${center.lng.toFixed(3)}:${center.lat.toFixed(3)}:${currentZoom.toFixed(2)}`;
-        if (this.m_lastCapturedBuildingCacheKey === cacheKey) return;
-
-        const rawFeatures = this.m_map.querySourceFeatures('mapbox-buildings', { sourceLayer: 'building' }) || [];
-        if (rawFeatures.length === 0) return;
-
-        const byId = new Map();
-        for (const feature of rawFeatures) {
-            const type = feature?.geometry?.type;
-            if (type !== 'Polygon' && type !== 'MultiPolygon') continue;
-
-            const coords = feature?.geometry?.coordinates;
-            if (!Array.isArray(coords) || coords.length === 0) continue;
-
-            const props = feature?.properties || {};
-            const syntheticId = feature.id ?? `${props.osm_id || props.id || 'b'}:${JSON.stringify(coords[0]).slice(0, 200)}`;
-            byId.set(String(syntheticId), {
-                type: 'Feature',
-                geometry: {
-                    type,
-                    coordinates: coords
-                },
-                properties: {
-                    height: Number(props.height) || 10,
-                    min_height: Number(props.min_height) || 0
-                }
-            });
-        }
-
-        if (byId.size === 0) return;
-
-        const source = this.m_map.getSource(this.m_cachedBuildingSourceId);
-        if (!source || typeof source.setData !== 'function') return;
-
-        source.setData({
-            type: 'FeatureCollection',
-            features: Array.from(byId.values())
-        });
-
-        this.m_lastCapturedBuildingCacheKey = cacheKey;
     }
 
     fn_ensureMissionLayers() {
@@ -780,7 +674,6 @@ class CAndruavMap3D {
                 this.fn_refreshAltitudeVisuals();
             }
 
-            this.fn_updateBuildingLayerVisibility();
         });
 
         this.m_map.on('move', () => {
