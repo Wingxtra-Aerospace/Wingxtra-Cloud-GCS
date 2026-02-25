@@ -49,7 +49,7 @@ export let CONST_WEBSOCKET_BRIDGE_PORT = 8812;
 export let CONST_HEALTH_API_BASE_URL = '';
 
 // CHOOSE YOUR MAP SOURCE
-export let CONST_MAP_LEAFLET_URL = "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHNhYWQiLCJhIjoiY2tqZnIwNXRuMndvdTJ4cnV0ODQ4djZ3NiJ9.LKojA3YMrG34L93jRThEGQ";
+export let CONST_MAP_LEAFLET_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 //export let CONST_MAP_LEAFLET_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 //export let CONST_MAP_LEAFLET_URL = "https://airgap.local:88/sat_{x}_{y}_{z}.png"; // LOCAL MAP
 

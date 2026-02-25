@@ -22,6 +22,7 @@ class CAndruavMap3D {
         this.m_altitudePathOverlaySvg = null;
         this.m_lastMissionPlans = null;
         this.m_lastActiveMissionId = null;
+        this.m_isFallbackStyle = false;
     }
 
     async fn_loadMapboxSdk() {
@@ -55,6 +56,27 @@ class CAndruavMap3D {
         });
 
         return window.mapboxgl;
+    }
+
+    fn_getFallbackStyle() {
+        return {
+            version: 8,
+            sources: {
+                satellite: {
+                    type: 'raster',
+                    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                    tileSize: 256,
+                    attribution: 'Tiles © Esri'
+                }
+            },
+            layers: [
+                {
+                    id: 'satellite',
+                    type: 'raster',
+                    source: 'satellite'
+                }
+            ]
+        };
     }
 
     fn_getBuildingOpacity() {
@@ -571,18 +593,22 @@ class CAndruavMap3D {
             this.m_missionLayerHandlersBound = false;
         }
 
-        const token = js_siteConfig.CONST_MAPBOX_ACCESS_TOKEN;
-        if (!token) {
-            console.warn('Mapbox 3D disabled: CONST_MAPBOX_ACCESS_TOKEN is not configured.');
-            return;
-        }
+        const token = (js_siteConfig.CONST_MAPBOX_ACCESS_TOKEN || '').toString().trim();
 
         const mapboxgl = await this.fn_loadMapboxSdk();
-        mapboxgl.accessToken = token;
+        if (token.length > 0) {
+            mapboxgl.accessToken = token;
+        }
+
+        const configuredStyle = js_siteConfig.CONST_MAPBOX_STYLE || 'mapbox://styles/mapbox/standard-satellite';
+        this.m_isFallbackStyle = token.length === 0;
+        if (this.m_isFallbackStyle) {
+            console.warn('Mapbox token is missing. Falling back to raster satellite style for 3D view.');
+        }
 
         this.m_map = new mapboxgl.Map({
             container: containerId,
-            style: js_siteConfig.CONST_MAPBOX_STYLE || 'mapbox://styles/mapbox/standard-satellite',
+            style: this.m_isFallbackStyle ? this.fn_getFallbackStyle() : configuredStyle,
             center: [-0.1870, 5.6037],
             zoom: 11.5,
             pitch: 45,
@@ -591,8 +617,22 @@ class CAndruavMap3D {
         });
 
         this.m_map.on('style.load', () => {
+            if (this.m_isFallbackStyle === true) {
+                console.info('[Map3D] using fallback raster style');
+                return;
+            }
             this.fn_applyTerrain();
             this.fn_applyBuildings();
+        });
+
+        this.m_map.on('error', (event) => {
+            const errorMessage = String(event?.error?.message || event?.error || '').toLowerCase();
+            const isAuthIssue = event?.error?.status === 401 || errorMessage.includes('invalid mapbox access token') || errorMessage.includes('unauthorized');
+            if (!isAuthIssue || this.m_isFallbackStyle === true || !this.m_map) return;
+
+            console.warn('[Map3D] Mapbox auth/style failed. Switching to fallback raster style.', { message: event?.error?.message });
+            this.m_isFallbackStyle = true;
+            this.m_map.setStyle(this.fn_getFallbackStyle());
         });
 
         this.m_map.on('load', () => {
@@ -609,6 +649,29 @@ class CAndruavMap3D {
                 this.fn_setMissionBaseLayerVisibility(false);
                 this.fn_refreshAltitudeVisuals();
             }
+        });
+
+        this.m_map.on('click', (event) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (event?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: event.lngLat.lat,
+                lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
         });
 
         this.m_map.on('click', (event) => {

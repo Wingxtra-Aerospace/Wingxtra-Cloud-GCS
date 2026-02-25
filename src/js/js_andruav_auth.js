@@ -235,6 +235,59 @@ class CAndruavAuth {
         return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_WEB_FUNCTION}${path}`;
     }
 
+    #getWebSocketLoginUrl() {
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_WEB_FUNCTION}${js_andruavMessages.CONST_WEB_LOGIN_COMMAND}`;
+    }
+
+    async #loginViaWebSocket(loginUrl, payload) {
+        return new Promise((resolve, reject) => {
+            let done = false;
+            const ws = new WebSocket(loginUrl);
+
+            const finish = (fn) => (arg) => {
+                if (done) return;
+                done = true;
+                try { ws.close(); } catch { }
+                fn(arg);
+            };
+
+            const onResolve = finish(resolve);
+            const onReject = finish(reject);
+
+            const timer = setTimeout(() => {
+                onReject(new Error('WebSocket login timeout'));
+            }, AUTH_REQUEST_TIMEOUT);
+
+            ws.onopen = () => {
+                console.info('[Auth WS] open', { url: loginUrl });
+                ws.send(JSON.stringify(payload));
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const response = JSON.parse(event.data);
+                    console.info('[Auth WS] message received', { hasErrorCode: response?.e !== undefined });
+                    clearTimeout(timer);
+                    onResolve(response);
+                } catch {
+                    clearTimeout(timer);
+                    onReject(new Error('Invalid JSON response from login WebSocket'));
+                }
+            };
+
+            ws.onerror = () => {
+                console.error('[Auth WS] error', { url: loginUrl });
+                clearTimeout(timer);
+                onReject(new Error('WebSocket login error'));
+            };
+
+            ws.onclose = (event) => {
+                console.info('[Auth WS] close', { code: event.code, reason: event.reason || '(none)' });
+            };
+        });
+    }
+
 
     #getHealthBaseUrl() {
         const configured = (js_siteConfig.CONST_HEALTH_API_BASE_URL || '').toString().trim();
@@ -295,38 +348,20 @@ class CAndruavAuth {
             return false;
         }
 
-        const url = this.#getBaseUrl(js_andruavMessages.CONST_WEB_LOGIN_COMMAND);
-        const healthBaseUrl = this.#getHealthBaseUrl();
+        const loginWsUrl = this.#getWebSocketLoginUrl();
         this.m_accesscode = p_accessCode;
 
         const keyValues = fn_buildLoginPayload(p_userName, p_accessCode, this._m_ver, js_localStorage.fn_getGroupName());
 
         console.info('[Auth endpoints]', {
-            healthHttpBase: healthBaseUrl || '(disabled)',
-            websocketAuthBase: `${this.m_auth_ip}:${this._m_auth_port}`
+            host: this.m_auth_ip,
+            port: this._m_auth_port,
+            loginWsUrl: loginWsUrl,
         });
-
-        if (healthBaseUrl) {
-            const probeResult = await this.fn_probeServer(healthBaseUrl);
-            if (!probeResult.success) {
-                console.warn('[Auth health check] non-blocking failure; continue login', {
-                    baseUrl: healthBaseUrl,
-                    ssl: probeResult.isSslError === true
-                });
-            } else {
-                console.info('[Auth health check] OK', { baseUrl: healthBaseUrl });
-            }
-        } else {
-            console.info('[Auth health check] skipped (CONST_HEALTH_API_BASE_URL is not configured)');
-        }
+        console.info('[Auth health check] skipped for airgap websocket login channel (/w/wl/)');
 
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(keyValues),
-                signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT),
-            }).then(res => res.json());
+            const response = await this.#loginViaWebSocket(loginWsUrl, keyValues);
 
             const parsed = fn_parseLoginResponse(response);
             if (parsed.ok === true) {
