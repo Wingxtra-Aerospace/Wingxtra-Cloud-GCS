@@ -58,7 +58,7 @@
     "lint": "eslint src",
     "check:js-main-dupes": "node scripts/check-js-main-duplicate-functions.js",
     "start:dev": "export NODE_OPTIONS=--openssl-legacy-provider && HTTPS=true SSL_CRT_FILE=$WEB_SSL_CRT SSL_KEY_FILE=$WEB_SSL_KEY react-scripts start",
-    "render-build": "npm ci && npm run build"
+    "render-build": "npm install && npm run build"
   },
   "eslintConfig": {
     "extends": [
