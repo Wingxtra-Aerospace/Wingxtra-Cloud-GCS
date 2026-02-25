@@ -626,12 +626,12 @@ class CAndruavMap3D {
             this.fn_applyBuildings();
         });
 
-        this.m_map.on('error', (event) => {
-            const errorMessage = String(event?.error?.message || event?.error || '').toLowerCase();
-            const isAuthIssue = event?.error?.status === 401 || errorMessage.includes('invalid mapbox access token') || errorMessage.includes('unauthorized');
+        this.m_map.on('error', (mapErrorEvent) => {
+            const errorMessage = String(mapErrorEvent?.error?.message || mapErrorEvent?.error || '').toLowerCase();
+            const isAuthIssue = mapErrorEvent?.error?.status === 401 || errorMessage.includes('invalid mapbox access token') || errorMessage.includes('unauthorized');
             if (!isAuthIssue || this.m_isFallbackStyle === true || !this.m_map) return;
 
-            console.warn('[Map3D] Mapbox auth/style failed. Switching to fallback raster style.', { message: event?.error?.message });
+            console.warn('[Map3D] Mapbox auth/style failed. Switching to fallback raster style.', { message: mapErrorEvent?.error?.message });
             this.m_isFallbackStyle = true;
             this.m_map.setStyle(this.fn_getFallbackStyle());
         });
@@ -649,10 +649,6 @@ class CAndruavMap3D {
                 this.m_map.resize();
                 this.fn_setMissionBaseLayerVisibility(false);
                 this.fn_refreshAltitudeVisuals();
-            }
-
-            if (event?.originalEvent?.shiftKey !== true) {
-                return;
             }
 
             this.m_plannerCreateWaypointHandler({
@@ -681,6 +677,29 @@ class CAndruavMap3D {
             this.m_plannerCreateWaypointHandler({
                 lat: event.lngLat.lat,
                 lng: event.lngLat.lng
+            });
+        });
+
+        this.m_map.on('move', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('render', () => {
+            this.fn_refreshAltitudeVisuals();
+        });
+
+        this.m_map.on('click', (mapClickEvent) => {
+            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
+                return;
+            }
+
+            if (mapClickEvent?.originalEvent?.shiftKey !== true) {
+                return;
+            }
+
+            this.m_plannerCreateWaypointHandler({
+                lat: mapClickEvent.lngLat.lat,
+                lng: mapClickEvent.lngLat.lng
             });
         });
 
@@ -750,6 +769,20 @@ class CAndruavMap3D {
 
     fn_applyView(state) {
         this.fn_applyViewState(state);
+    }
+
+    fn_ensureBuildingsVisibleAtCurrentZoom() {
+        if (!this.m_map || !this.m_isReady) return;
+
+        const currentZoom = Number(this.m_map.getZoom());
+        if (!Number.isFinite(currentZoom)) return;
+
+        if (currentZoom < this.m_buildingVisibilityMinZoom) {
+            this.m_map.easeTo({
+                zoom: this.m_buildingVisibilityMinZoom,
+                duration: 350
+            });
+        }
     }
 
     fn_ensureBuildingsVisibleAtCurrentZoom() {
