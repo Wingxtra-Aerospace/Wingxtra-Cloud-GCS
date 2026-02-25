@@ -192,10 +192,10 @@ class CAndruavMap3D {
         if (this.m_missionLayerHandlersBound === true) return;
         if (!this.m_map.getLayer(this.m_missionPointLayerId)) return;
 
-        this.m_map.on('click', this.m_missionPointLayerId, (event) => {
+        this.m_map.on('click', this.m_missionPointLayerId, (e) => {
             if (typeof this.m_plannerSelectWaypointHandler !== 'function') return;
 
-            const feature = event?.features?.[0];
+            const feature = e?.features?.[0];
             const missionId = feature?.properties?.missionId;
             const order = Number(feature?.properties?.order);
             if (missionId == null || !Number.isFinite(order) || order <= 0) return;
@@ -593,18 +593,18 @@ class CAndruavMap3D {
             }
         });
 
-        this.m_map.on('click', (event) => {
+        this.m_map.on('click', (e) => {
             if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
                 return;
             }
 
-            if (event?.originalEvent?.shiftKey !== true) {
+            if (e?.originalEvent?.shiftKey !== true) {
                 return;
             }
 
             this.m_plannerCreateWaypointHandler({
-                lat: event.lngLat.lat,
-                lng: event.lngLat.lng
+                lat: e.lngLat.lat,
+                lng: e.lngLat.lng
             });
         });
 
@@ -616,18 +616,18 @@ class CAndruavMap3D {
             this.fn_refreshAltitudeVisuals();
         });
 
-        this.m_map.on('click', (event) => {
+        this.m_map.on('click', (e) => {
             if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
                 return;
             }
 
-            if (event?.originalEvent?.shiftKey !== true) {
+            if (e?.originalEvent?.shiftKey !== true) {
                 return;
             }
 
             this.m_plannerCreateWaypointHandler({
-                lat: event.lngLat.lat,
-                lng: event.lngLat.lng
+                lat: e.lngLat.lat,
+                lng: e.lngLat.lng
             });
         });
 
@@ -639,18 +639,18 @@ class CAndruavMap3D {
             this.fn_refreshAltitudeVisuals();
         });
 
-        this.m_map.on('click', (event) => {
+        this.m_map.on('click', (e) => {
             if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
                 return;
             }
 
-            if (event?.originalEvent?.shiftKey !== true) {
+            if (e?.originalEvent?.shiftKey !== true) {
                 return;
             }
 
             this.m_plannerCreateWaypointHandler({
-                lat: event.lngLat.lat,
-                lng: event.lngLat.lng
+                lat: e.lngLat.lat,
+                lng: e.lngLat.lng
             });
         });
 

@@ -36,7 +36,7 @@ npm install
 Start the development server with HTTPS:
 
 ```bash
-npm run start
+npm run start:dev
 ```
 
 The application will be available at `https://localhost:3000`.
@@ -57,10 +57,12 @@ The production-ready files will be generated in the `build/` directory.
 
 This project can be deployed as a **Web Service** on Render with these settings:
 
-- **Build Command:** `npm install && npm run build`
+- **Build Command:** `npm ci && npm run build`
 - **Start Command:** `npm start`
 
 The server uses `process.env.PORT` (required by Render) and defaults to plain HTTP in production.
+
+A `render.yaml` blueprint is included in this repository with the same settings, so Render can auto-detect build/start commands.
 
 If you need local HTTPS testing, run:
 
