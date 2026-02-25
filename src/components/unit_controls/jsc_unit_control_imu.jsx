@@ -3,7 +3,7 @@ import { withTranslation } from 'react-i18next';
 import * as js_helpers from '../../js/js_helpers.js';
 import { js_globals } from '../../js/js_globals.js';
 import { mavlink20 } from '../../js/js_mavlink_v2.js';
-import { hlp_getFlightMode, fn_switchGPS, fn_openFenceManager, fn_isBadFencing } from '../../js/js_main.js';
+import { hlp_getFlightMode, fn_switchGPS, fn_openFenceManager, fn_isBadFencing } from '../../js/js_main.jsx';
 import * as js_andruavUnit from '../../js/js_andruavUnit.js';
 import * as js_andruavMessages from '../../js/protocol/js_andruavMessages';
 import ClssCtrlUDPPoxyTelemetry from '../gadgets/jsc_ctrl_udp_proxy_telemetry.jsx';

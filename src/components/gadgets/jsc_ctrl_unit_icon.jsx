@@ -2,7 +2,7 @@ import React    from 'react';
 
 import {fn_gotoUnit, 
     getVehicleIcon, 
-    } from '../../js/js_main.js'
+    } from '../../js/js_main.jsx'
 
 
 export class ClssCtrlUnitIcon extends React.Component {

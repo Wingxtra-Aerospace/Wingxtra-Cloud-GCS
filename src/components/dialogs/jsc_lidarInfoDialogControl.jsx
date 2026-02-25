@@ -5,7 +5,7 @@ import Draggable from "react-draggable";
 
 import {EVENTS as js_event} from '../../js/js_eventList.js'
 import {js_eventEmitter} from '../../js/js_eventEmitter.js'
-import {fn_gotoUnit_byPartyID} from '../../js/js_main.js'
+import {fn_gotoUnit_byPartyID} from '../../js/js_main.jsx'
 
 import {ClssCtrlLidarDevice} from '../gadgets/jsc_ctrl_lidar_device.jsx'
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTranslation } from 'react-i18next';
-import { hlp_getFlightMode } from '../../js/js_main.js';
+import { hlp_getFlightMode } from '../../js/js_main.jsx';
 
 class ClssMainUnitPopup extends React.Component {
   constructor() {
