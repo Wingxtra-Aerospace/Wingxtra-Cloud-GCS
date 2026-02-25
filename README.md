@@ -77,6 +77,20 @@ Detailed configuration documentation is maintained in `wiki/`:
 - **jQuery** - DOM manipulation
 - **i18next** - Internationalization
 
+
+## Deploying on Render
+
+This project is deployable on Render as a **Static Site**.
+
+1. Push this repository to GitHub.
+2. In Render, create a new **Static Site** from that repository.
+3. Render will automatically use `render.yaml` with:
+   - Build command: `npm run render-build`
+   - Publish directory: `dist`
+4. The SPA rewrite rule in `render.yaml` sends all routes to `index.html`, so the app does not load as a blank page when directly opening nested URLs.
+
+> If you create the service manually instead of using `render.yaml`, set the same build command/publish directory and add an SPA rewrite from `/*` to `/index.html`.
+
 ## WIKI Link
 
     ./wiki/
