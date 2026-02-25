@@ -86,6 +86,19 @@ class CAndruavMap3D {
         return Math.min(1.0, Math.max(0.05, configured));
     }
 
+    fn_getBuildingMinZoom() {
+        const configured = Number(js_siteConfig.CONST_MAPBOX_3D_BUILDING_MIN_ZOOM);
+        if (Number.isFinite(configured) && configured >= 0) {
+            return configured;
+        }
+
+        if (Number.isFinite(this.m_buildingVisibilityMinZoom) && this.m_buildingVisibilityMinZoom >= 0) {
+            return this.m_buildingVisibilityMinZoom;
+        }
+
+        return 13;
+    }
+
     fn_applyTerrain() {
         if (!this.m_map) return;
 
@@ -132,6 +145,11 @@ class CAndruavMap3D {
             this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', 'visible');
             this.m_map.setPaintProperty('add-3d-buildings', 'fill-extrusion-opacity', buildingOpacity);
             this.m_map.setPaintProperty('add-3d-buildings', 'fill-extrusion-color', buildingColor);
+            if (this.m_map.getLayer('add-3d-buildings-footprint')) {
+                this.m_map.setPaintProperty('add-3d-buildings-footprint', 'fill-color', buildingColor);
+                this.m_map.setPaintProperty('add-3d-buildings-footprint', 'fill-opacity', Math.min(0.35, Math.max(0.1, buildingOpacity * 0.7)));
+            }
+            this.fn_updateBuildingLayerVisibility();
             return;
         }
 
@@ -143,11 +161,55 @@ class CAndruavMap3D {
             minzoom: 0,
             paint: {
                 'fill-extrusion-color': buildingColor,
-                'fill-extrusion-height': ['coalesce', ['get', 'height'], 10],
+                'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    0, 2,
+                    this.fn_getBuildingMinZoom(), 8,
+                    this.fn_getBuildingMinZoom() + 1, ['coalesce', ['get', 'height'], 10]
+                ],
                 'fill-extrusion-base': ['coalesce', ['get', 'min_height'], 0],
                 'fill-extrusion-opacity': buildingOpacity
             }
         }, beforeLayerId);
+
+        if (!this.m_map.getLayer('add-3d-buildings-footprint')) {
+            this.m_map.addLayer({
+                id: 'add-3d-buildings-footprint',
+                source: 'mapbox-buildings',
+                'source-layer': 'building',
+                type: 'fill',
+                minzoom: 0,
+                paint: {
+                    'fill-color': buildingColor,
+                    'fill-opacity': Math.min(0.35, Math.max(0.1, buildingOpacity * 0.7))
+                }
+            }, 'add-3d-buildings');
+        }
+
+        this.fn_updateBuildingLayerVisibility();
+    }
+
+    fn_updateBuildingLayerVisibility() {
+        if (!this.m_map) return;
+
+        const buildingMinZoom = this.fn_getBuildingMinZoom();
+        const zoom = Number(this.m_map.getZoom());
+        if (!Number.isFinite(zoom)) return;
+
+        const showFootprint = zoom < buildingMinZoom;
+
+        try {
+            if (this.m_map.getLayer('add-3d-buildings-footprint')) {
+                this.m_map.setLayoutProperty('add-3d-buildings-footprint', 'visibility', showFootprint ? 'visible' : 'none');
+            }
+            if (this.m_map.getLayer('add-3d-buildings')) {
+                this.m_map.setLayoutProperty('add-3d-buildings', 'visibility', 'visible');
+            }
+        } catch (_) {
+            // Ignore layer visibility updates that fail during style transitions.
+        }
     }
 
     fn_ensureMissionLayers() {
@@ -206,6 +268,13 @@ class CAndruavMap3D {
         if (this.m_pendingMissionGeoJson) {
             this.fn_applyMissionGeoJson(this.m_pendingMissionGeoJson);
             this.m_pendingMissionGeoJson = null;
+        }
+
+        try {
+            if (this.m_map.getLayer(this.m_missionLineLayerId)) this.m_map.moveLayer(this.m_missionLineLayerId);
+            if (this.m_map.getLayer(this.m_missionPointLayerId)) this.m_map.moveLayer(this.m_missionPointLayerId);
+        } catch (_) {
+            // Ignore layer ordering updates while style is still settling.
         }
     }
 
@@ -651,13 +720,11 @@ class CAndruavMap3D {
                 this.fn_refreshAltitudeVisuals();
             }
 
-            this.m_plannerCreateWaypointHandler({
-                lat: event.lngLat.lat,
-                lng: event.lngLat.lng
-            });
+            this.fn_updateBuildingLayerVisibility();
         });
 
         this.m_map.on('move', () => {
+            this.fn_updateBuildingLayerVisibility();
             this.fn_refreshAltitudeVisuals();
         });
 
@@ -678,60 +745,6 @@ class CAndruavMap3D {
                 lat: event.lngLat.lat,
                 lng: event.lngLat.lng
             });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('click', (mapClickEvent) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (mapClickEvent?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: mapClickEvent.lngLat.lat,
-                lng: mapClickEvent.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('click', (mapClickEvent) => {
-            if (this.m_plannerCreateEnabled !== true || typeof this.m_plannerCreateWaypointHandler !== 'function') {
-                return;
-            }
-
-            if (mapClickEvent?.originalEvent?.shiftKey !== true) {
-                return;
-            }
-
-            this.m_plannerCreateWaypointHandler({
-                lat: mapClickEvent.lngLat.lat,
-                lng: mapClickEvent.lngLat.lng
-            });
-        });
-
-        this.m_map.on('move', () => {
-            this.fn_refreshAltitudeVisuals();
-        });
-
-        this.m_map.on('render', () => {
-            this.fn_refreshAltitudeVisuals();
         });
 
         this.m_map.on('moveend', () => {
@@ -794,54 +807,11 @@ class CAndruavMap3D {
         this.fn_applyViewState(state);
     }
 
-    fn_ensureBuildingsVisibleAtCurrentZoom() {
-        if (!this.m_map || !this.m_isReady) return;
-
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom)) return;
-
-        if (currentZoom < this.m_buildingVisibilityMinZoom) {
-            this.m_map.easeTo({
-                zoom: this.m_buildingVisibilityMinZoom,
-                duration: 350
-            });
-        }
-    }
-
-    fn_ensureBuildingsVisibleAtCurrentZoom() {
-        if (!this.m_map || !this.m_isReady) return;
-
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom)) return;
-
-        if (currentZoom < this.m_buildingVisibilityMinZoom) {
-            this.m_map.easeTo({
-                zoom: this.m_buildingVisibilityMinZoom,
-                duration: 350
-            });
-        }
-    }
-
-    fn_adjustZoomForBuildingVisibility() {
-        if (!this.m_map || !this.m_isReady) return;
-
-        const currentZoom = Number(this.m_map.getZoom());
-        if (!Number.isFinite(currentZoom)) return;
-
-        if (currentZoom < this.m_buildingVisibilityMinZoom) {
-            this.m_map.easeTo({
-                zoom: this.m_buildingVisibilityMinZoom,
-                duration: 350
-            });
-        }
-    }
-
     fn_show() {
         this.m_isVisible = true;
         if (this.m_map) {
             this.m_map.resize();
             this.fn_setMissionBaseLayerVisibility(false);
-            this.fn_adjustZoomForBuildingVisibility();
             this.fn_refreshAltitudeVisuals();
         }
     }
