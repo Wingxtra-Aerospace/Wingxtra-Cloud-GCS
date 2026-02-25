@@ -13,7 +13,7 @@ import {
     fn_do_modal_confirmation,
     fn_readMissionFile,
     fn_do_modal_apply_all
-    } from '../../../js/js_main.jsx'
+    } from '../../../js/js_main.js'
 
 
 

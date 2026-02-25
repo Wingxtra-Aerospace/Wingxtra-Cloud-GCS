@@ -9,7 +9,6 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
@@ -59,15 +58,14 @@ const Home = () => {
               </div>
 
               <div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-                <button
-                  type="button"
+                <a
                   id="btn_missionPlanner"
                   className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
+                  href="./mapeditor"
                   title="Mission Planner"
-                  onClick={() => window.location.assign('mapeditor')}
                 >
                   <strong className="ms-1">Plan</strong>
-                </button>
+                </a>
               </div>
 
               <div id="map_overlay_right_tools" className="css_map_overlay_right_tools">

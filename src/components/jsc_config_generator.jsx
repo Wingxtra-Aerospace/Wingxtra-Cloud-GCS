@@ -25,7 +25,7 @@ import {
   setNested,
 } from '../js/helpers/js_form_utils.js';
 
-import { fn_do_modal_confirmation } from '../js/js_main.jsx';
+import { fn_do_modal_confirmation } from '../js/js_main.js';
 /**
  * ClssConfigGenerator generates a form based on a JSON configuration loaded from a file.
  * It is triggered by the EE_displayConfigGenerator event with {p_unit, module}.

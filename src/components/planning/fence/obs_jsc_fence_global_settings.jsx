@@ -10,7 +10,7 @@ import * as js_fence_plan from '../../../js/js_mission_fence.js'
 import * as js_andruavMessages from '../../../js/protocol/js_andruavMessages'
 
 import {js_leafletmap} from '../../../js/js_leafletmap.js'
-import {fn_do_modal_confirmation, fn_submitShapes, fn_deleteShapesinDB} from '../../../js/js_main.jsx'
+import {fn_do_modal_confirmation, fn_submitShapes, fn_deleteShapesinDB} from '../../../js/js_main.js'
 
 
 const res_FenceClssGlobalSettingsControl =

@@ -1,8 +1,4 @@
 import { fn_loadConfig } from './js/js_siteConfig.js';
-import $ from 'jquery';
-
-window.$ = $;
-window.jQuery = $;
 
 
 async function fn_startApp() {
@@ -35,13 +31,7 @@ async function fn_startApp() {
             <Route path="index" element={<Home />} />
             <Route path="home" element={<Home />} />
             <Route path="webclient" element={<Home />} />
-            <Route path="webclient/home" element={<Home />} />
             <Route path="mapeditor" element={<Planning />} />
-            <Route path="webclient/mapeditor" element={<Planning />} />
-            <Route path="planview" element={<Planning />} />
-            <Route path="webclient/planview" element={<Planning />} />
-            <Route path="planning" element={<Planning />} />
-            <Route path="webclient/planning" element={<Planning />} />
             <Route path="gamepad" element={<GamePadTesterPage />} />
             <Route path="debug" element={<DebugPage />} />
             <Route path="delivery/*" element={<DeliveryPage />} />
