@@ -51,7 +51,7 @@ Build the application for production deployment:
 npm run build
 ```
 
-The production-ready files will be generated in the `build/` directory.
+The production-ready files will be generated in the `dist/` directory.
 
 ## Other Commands
 
