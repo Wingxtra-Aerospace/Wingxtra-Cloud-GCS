@@ -20,6 +20,7 @@ import ClssFooterControl from '../components/jsc_footer'
 import ClssAndruavUnitList from '../components/unit_controls/jsc_unitControlMainList.jsx'
 import ClssMain_Control_Buttons from '../components/planning/jsc_ctrl_main_control_buttons.jsx'
 import { fn_on_ready, fn_showMap3D, fn_toggleMapMode } from '../js/js_main'
+import { js_leafletmap } from '../js/js_leafletmap.js';
 
 
 

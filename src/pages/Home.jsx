@@ -30,6 +30,7 @@ import ClssUnitParametersList from '../components/dialogs/jsc_unitParametersList
 import ClssConfigGenerator from '../components/jsc_config_generator.jsx'
 import { ClssCVideoControl } from '../components/video/jsc_videoDisplayComponent.jsx';
 import { fn_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
+import { js_leafletmap } from '../js/js_leafletmap.js';
 
 const jQuery = $;
 const Home = () => {
