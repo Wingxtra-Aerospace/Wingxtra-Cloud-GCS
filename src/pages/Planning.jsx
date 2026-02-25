@@ -39,28 +39,8 @@ const Planning = () => {
 
 	const fn_returnToFlyView = () => {
 		const storedReturnUrl = sessionStorage.getItem('flyViewReturnUrl');
-		if (storedReturnUrl) {
-			window.location.assign(storedReturnUrl);
-			return;
-		}
-
-		let returnUrl = '/';
-		try {
-			const center = js_leafletmap.fn_getCenter();
-			const zoom = js_leafletmap.fn_getZoom();
-			if (center && Number.isFinite(center.lat) && Number.isFinite(center.lng)) {
-				const params = new URLSearchParams({
-					zoom: String(zoom),
-					lat: String(center.lat),
-					lng: String(center.lng),
-				});
-				returnUrl = `/?${params.toString()}`;
-			}
-		} catch (_err) {
-			// ignore and fall back to root
-		}
-
-		window.location.assign(returnUrl);
+		sessionStorage.removeItem('flyViewReturnUrl');
+		window.location.assign(storedReturnUrl || '/');
 	};
 
 	return (

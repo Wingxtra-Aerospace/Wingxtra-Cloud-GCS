@@ -7,10 +7,13 @@ async function startApp() {
   // that expect `jQuery` to exist at module-evaluation time.
   await import("./setupJqueryGlobals.js");
 
-  const [{ default: AppRouter }, { default: i18n }] = await Promise.all([
+  const [{ default: AppRouter }, { default: i18n }, { fn_loadConfig }] = await Promise.all([
     import("./AppRouter.jsx"),
     import("./js/i18n.js"),
+    import("./js/js_siteConfig.js"),
   ]);
+
+  await fn_loadConfig();
 
   const rootEl = document.getElementById("root");
   if (!rootEl) throw new Error('Root element "#root" not found');

@@ -10,7 +10,6 @@ import 'jquery-ui-dist/jquery-ui.min.js';
 import 'jquery-knob/dist/jquery.knob.min.js';
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation , withTranslation} from 'react-i18next';
 
 
@@ -43,23 +42,9 @@ const Home = () => {
   }, []);
 
   const fn_openPlanningWithReturn = () => {
-    let returnUrl = '/';
-    try {
-      const center = js_leafletmap.fn_getCenter();
-      const zoom = js_leafletmap.fn_getZoom();
-      if (center && Number.isFinite(center.lat) && Number.isFinite(center.lng)) {
-        const params = new URLSearchParams({
-          zoom: String(zoom),
-          lat: String(center.lat),
-          lng: String(center.lng),
-        });
-        returnUrl = `/?${params.toString()}`;
-      }
-    } catch (_err) {
-      // ignore and fall back to root
-    }
-
-    sessionStorage.setItem('flyViewReturnUrl', returnUrl);
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    sessionStorage.setItem('flyViewReturnUrl', currentUrl || '/');
+    window.location.assign('/planning');
   };
 
   return (
@@ -82,15 +67,15 @@ const Home = () => {
               </div>
 
               <div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-                <Link
+                <button
                   id="btn_missionPlanner"
+                  type="button"
                   className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
-                  to="/planning"
                   title="Mission Planner"
                   onClick={fn_openPlanningWithReturn}
                 >
                   <strong className="ms-1">Plan</strong>
-                </Link>
+                </button>
               </div>
 
               <div id="map_overlay_right_tools" className="css_map_overlay_right_tools">
