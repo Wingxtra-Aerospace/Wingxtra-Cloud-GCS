@@ -53,6 +53,21 @@ npm run build
 
 The production-ready files will be generated in the `build/` directory.
 
+## Deploying on Render
+
+This project can be deployed as a **Web Service** on Render with these settings:
+
+- **Build Command:** `npm install && npm run build`
+- **Start Command:** `npm start`
+
+The server uses `process.env.PORT` (required by Render) and defaults to plain HTTP in production.
+
+If you need local HTTPS testing, run:
+
+```bash
+USE_HTTPS=true npm start
+```
+
 ## Other Commands
 
 | Command | Description |
