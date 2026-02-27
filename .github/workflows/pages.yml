@@ -29,8 +29,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build (ignore lint warnings)
-        run: CI=false npm run build
+      - name: Build (ignore lint warnings, disable sourcemaps)
+        run: CI=false GENERATE_SOURCEMAP=false npm run build
+
+      - name: Remove any sourcemaps (defensive)
+        run: |
+          find build -name "*.map" -type f -delete
+          echo "Remaining .map files (should be none):"
+          find build -name "*.map" -type f || true
 
       - name: Scan production bundles for eval/new Function
         run: |
@@ -40,10 +46,9 @@ jobs:
           grep -R --line-number --binary-files=without-match "new Function" build/static/js || true
           echo "===== SCAN DONE ====="
 
-      # 🔥 THIS IS THE FIX
       - name: Inject runtime config into Pages root
         run: |
-          cp public/config.json build/config.json
+          cp -f public/config.json build/config.json
           touch build/.nojekyll
           echo "CONFIG DEPLOYED:"
           ls -la build | grep config.json
@@ -63,10 +68,3 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Find eval/new Function in production bundles
-        run: |
-          echo "---- Searching build output for eval/new Function ----"
-          grep -R --line-number --binary-files=without-match "eval(" build/static/js || true
-          grep -R --line-number --binary-files=without-match "new Function" build/static/js || true
-          echo "---- Done ----"
