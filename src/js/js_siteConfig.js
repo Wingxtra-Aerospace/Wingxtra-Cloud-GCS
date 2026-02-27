@@ -167,9 +167,22 @@ export function fn_applyRuntimeConfig(data) {
 
 export async function fn_loadConfig() {
     try {
-        const res = await fetch('config.json', { cache: 'no-store' });
+        /*
+         * GitHub Pages project sites are served from:
+         * https://username.github.io/REPO_NAME/
+         * So we must load config.json relative to the app base path,
+         * NOT from "/" (domain root).
+         */
+
+        const basePath = window.location.pathname.endsWith('/')
+            ? window.location.pathname
+            : window.location.pathname.replace(/\/[^/]*$/, '/');
+
+        const url = `${window.location.origin}${basePath}config.json`;
+
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) {
-            console.error('Error loading config:', res.status);
+            console.error('Error loading config:', res.status, url);
             return;
         }
 
