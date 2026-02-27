@@ -167,18 +167,21 @@ export function fn_applyRuntimeConfig(data) {
 
 export async function fn_loadConfig() {
     try {
-        /*
-         * GitHub Pages project sites are served from:
-         * https://username.github.io/REPO_NAME/
-         * So we must load config.json relative to the app base path,
-         * NOT from "/" (domain root).
-         */
+        // Determine the app base path reliably.
+        // 1) If CRA homepage/PUBLIC_URL is set, use it.
+        // 2) Otherwise, fall back to the first path segment (repo name) for GitHub Pages project sites.
 
-        const basePath = window.location.pathname.endsWith('/')
-            ? window.location.pathname
-            : window.location.pathname.replace(/\/[^/]*$/, '/');
+        let base = (process.env.PUBLIC_URL || '').trim();
 
-        const url = `${window.location.origin}${basePath}config.json`;
+        if (!base) {
+            // e.g. "/Wingxtra-Cloud-GCS/anything" -> "/Wingxtra-Cloud-GCS"
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            base = parts.length > 0 ? `/${parts[0]}` : '';
+        }
+
+        base = base.replace(/\/$/, ''); // remove trailing slash
+
+        const url = `${window.location.origin}${base}/config.json`;
 
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) {
