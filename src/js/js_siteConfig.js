@@ -167,10 +167,12 @@ export function fn_applyRuntimeConfig(data) {
 
 export async function fn_loadConfig() {
     try {
-        // Always load config relative to where the app is served.
-        // This avoids CORS and avoids issues like "github.io./config.json".
-        const base = (document.querySelector('base')?.getAttribute('href') || './');
-        const url = new URL('config.json', base).toString();
+        // Build the URL relative to the current document URL (always absolute & valid).
+        // This avoids:
+        // - invalid <base> issues
+        // - origin quirks like "github.io."
+        // - nested route problems
+        const url = new URL('config.json', window.location.href).toString();
 
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) {
