@@ -167,7 +167,7 @@ export function fn_applyRuntimeConfig(data) {
 
 export async function fn_loadConfig() {
     try {
-        const res = await fetch('/config.json', { cache: 'no-store' });
+        const res = await fetch('config.json', { cache: 'no-store' });
         if (!res.ok) {
             console.error('Error loading config:', res.status);
             return;
