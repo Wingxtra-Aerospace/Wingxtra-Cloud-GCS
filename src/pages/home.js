@@ -14,7 +14,6 @@ import { useTranslation , withTranslation} from 'react-i18next';
 
 import { js_globals } from '../js/js_globals.js';
 import ClssHeaderControl from '../components/jsc_header';
-import ClssFooterControl from '../components/jsc_footer';
 import ClssGlobalSettings from '../components/jsc_globalSettings';
 import ClssAndruavUnitList from '../components/unit_controls/jsc_unitControlMainList.jsx';
 import ClssYawDialog from '../components/dialogs/jsc_yawDialogControl.jsx';
@@ -329,9 +328,6 @@ const Home = () => {
         </div>
       </div>
 
-      <div id="footer_div" className="row mt-0 me-0 mw-0">
-        <ClssFooterControl />
-      </div>
     </div>
   );
 };

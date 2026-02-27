@@ -109,9 +109,8 @@ export default class ClssMain_Control_Buttons extends React.Component {
 
             <div ref={this.missionControlRef} id="c_missioncontrol_section" className="col-12" style={{ display: this.state.activeTab === 'missions' ? 'block' : 'none' }}>
                 <div id="c_missioncontrol" className="col col-sm-12 container-fluid localcontainer margin_zero css_margin_top_small">
-                   <div className="row margin_zero">
+                    <div className="row margin_zero">
                     <div className="col col-sm-12">
-                        <h5 className="text-center">Geo Fence</h5>
                         <div className="row margin_zero">
                             <div className="col col-sm-12">
                                 <ClssFence_Shape_Control />
@@ -119,7 +118,6 @@ export default class ClssMain_Control_Buttons extends React.Component {
                         </div>
                     </div>
                     <div className="col col-sm-12">
-                        <h5 className="text-center">Mission Plans</h5>
                         <div className="row margin_zero">
                             <div className="col col-sm-12">
                                 <ClssMission_Container />

@@ -516,16 +516,13 @@ export default class ClssFence_Shape_Control extends React.Component {
     render() {
    
         let v_unit = [];
-        
 
-        if ((this.state.m_shape === null || this.state.m_shape === undefined) 
-        || ((this.state.m_shape.m_geofenceInfo !== null && this.state.m_shape.m_geofenceInfo !== undefined) && (this.state.m_shape.m_geofenceInfo.m_deleted === true))
-        )
-        {
-            v_unit.push (<h6 key='FCSCtrl1' >Please Select A Shape</h6>);
-        }
-        else
-        {
+        const hasSelectedShape = !(
+            (this.state.m_shape === null || this.state.m_shape === undefined) ||
+            ((this.state.m_shape.m_geofenceInfo !== null && this.state.m_shape.m_geofenceInfo !== undefined) && (this.state.m_shape.m_geofenceInfo.m_deleted === true))
+        );
+
+        if (hasSelectedShape === true) {
             if (this.state.is_connected === true)
             {
                 this._renderswitch(v_unit);

@@ -15,10 +15,9 @@ import { useTranslation, withTranslation } from 'react-i18next';
 
 import { js_globals } from '../js/js_globals.js'
 import ClssHeaderControl from '../components/jsc_header'
-import ClssFooterControl from '../components/jsc_footer'
 import ClssAndruavUnitList from '../components/unit_controls/jsc_unitControlMainList.jsx'
 import ClssMain_Control_Buttons from '../components/planning/jsc_ctrl_main_control_buttons.jsx'
-import { fn_on_ready, fn_showMap3D, fn_toggleMapMode } from '../js/js_main'
+import { fn_on_ready, fn_toggleMapMode } from '../js/js_main'
 
 
 
@@ -30,7 +29,6 @@ const Planning = () => {
 
 	useEffect(() => {
 		fn_on_ready();
-		fn_showMap3D();
 	},
 	[]);
 
@@ -64,20 +62,15 @@ const Planning = () => {
 							</div>
 
 
-							<div id="map_overlay_bottom_left_tools" className="css_map_overlay_bottom_left_tools">
-								<span className="badge bg-dark text-warning" title="3D: Shift+Click adds waypoint. Click a waypoint to select/edit command in Mission Items panel">
-									3D Tip: Shift+Click add WP, click WP to edit
-								</span>
-							</div>
 							<div id="map_overlay_right_tools" className="css_map_overlay_right_tools">
 								<button
 									type="button"
 									id="btn_toggleMapMode"
-									className="btn btn-danger btn-sm bi bi-map"
-									title="Toggle 2D/3D map (3D: Shift+Click add waypoint, click waypoint to edit)"
+									className="btn btn-secondary btn-sm bi bi-badge-3d"
+									title="Switch to 3D map (3D: Shift+Click add waypoint, click waypoint to edit)"
 									onClick={() => fn_toggleMapMode()}
 								>
-									<strong>2D Map</strong>
+									<strong>3D Map</strong>
 								</button>
 							</div>
 						</div>
@@ -168,9 +161,6 @@ const Planning = () => {
 				</div>
 			</div>
 
-			<div id="footer_div" className="row mt-0 me-0 mw-0 mb-5">
-				<ClssFooterControl />
-			</div>
 		</div>
 	);
 };

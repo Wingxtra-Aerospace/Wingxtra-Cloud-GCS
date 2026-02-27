@@ -162,7 +162,7 @@ class CLeafLetAndruavMap {
             
             this.m_Map.pm.addControls({
                 position: 'topleft',
-                drawMarker: false,
+                drawMarker: true,
                 drawPolygon: true,
                 editMode: true,
                 drawPolyline: true,
