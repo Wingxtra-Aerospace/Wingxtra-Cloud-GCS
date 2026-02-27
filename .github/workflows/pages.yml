@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "**" ]
   workflow_dispatch:
 
 permissions:
@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Build (ignore lint warnings, disable sourcemaps)
         run: CI=false GENERATE_SOURCEMAP=false npm run build
 
@@ -46,12 +49,15 @@ jobs:
           grep -R --line-number --binary-files=without-match "new Function" build/static/js || true
           echo "===== SCAN DONE ====="
 
-      - name: Inject runtime config into Pages root
+      - name: Inject runtime config and SPA fallback into Pages root
         run: |
           cp -f public/config.json build/config.json
+          cp -f build/index.html build/404.html
           touch build/.nojekyll
           echo "CONFIG DEPLOYED:"
           ls -la build | grep config.json
+          echo "SPA fallback DEPLOYED:"
+          ls -la build | grep 404.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

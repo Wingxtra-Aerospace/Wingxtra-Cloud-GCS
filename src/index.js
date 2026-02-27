@@ -21,9 +21,10 @@ async function fn_startApp() {
 
 
   function App2() {
+    const basename = process.env.PUBLIC_URL || "/";
 
     return (
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />

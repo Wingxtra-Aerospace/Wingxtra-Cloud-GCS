@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/DroneEngage/droneengage_webclient"
   },
-  "homepage": "./",
+  "homepage": "/Wingxtra-Cloud-GCS",
   "WEB_SSL_CRT": "./ssl/localssl.crt",
   "WEB_SSL_KEY": "./ssl/localssl.key",
   "private": true,
