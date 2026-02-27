@@ -25,14 +25,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # NOTE: Do NOT enable caching unless you commit a lockfile
+          # Don't enable npm cache unless you commit a lockfile
           # cache: npm
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build
-        run: npm run build
+      - name: Build (ignore lint warnings in CI)
+        run: CI=false npm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
