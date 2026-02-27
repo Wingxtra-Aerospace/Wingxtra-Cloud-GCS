@@ -55,3 +55,10 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Find eval/new Function in production bundles
+        run: |
+          echo "---- Searching build output for eval/new Function ----"
+          grep -R --line-number --binary-files=without-match "eval(" build/static/js || true
+          grep -R --line-number --binary-files=without-match "new Function" build/static/js || true
+          echo "---- Done ----"
