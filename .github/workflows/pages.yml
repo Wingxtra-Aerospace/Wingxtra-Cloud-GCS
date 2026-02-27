@@ -32,6 +32,14 @@ jobs:
       - name: Build (ignore lint warnings)
         run: CI=false npm run build
 
+      - name: Scan production bundles for eval/new Function
+        run: |
+          echo "===== SCAN: eval( ====="
+          grep -R --line-number --binary-files=without-match "eval(" build/static/js || true
+          echo "===== SCAN: new Function ====="
+          grep -R --line-number --binary-files=without-match "new Function" build/static/js || true
+          echo "===== SCAN DONE ====="
+
       # 🔥 THIS IS THE FIX
       - name: Inject runtime config into Pages root
         run: |
