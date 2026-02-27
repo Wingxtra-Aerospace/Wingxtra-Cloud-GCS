@@ -159,6 +159,7 @@ const Home = () => {
               id="btn_toggleSettingsChevron"
               className="btn btn-sm btn-primary txt-theme-aware border-light"
               title="Show/Hide settings panel"
+              aria-expanded="true"
               onClick={() => fn_showSettings()}
             >
               <strong>^</strong>

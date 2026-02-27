@@ -1504,8 +1504,8 @@ button.btn-outline-theme-aware:not(.hidden):disabled,
   z-index: 1300;
   padding: 2px 8px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.58);
-  color: rgba(17, 17, 17, 0.92);
+  background: rgba(255, 255, 255, 0.24);
+  color: rgba(17, 17, 17, 0.58);
   font-size: 11px;
   line-height: 16px;
   font-weight: 500;

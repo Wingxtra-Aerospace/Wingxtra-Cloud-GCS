@@ -1574,6 +1574,16 @@ div#displays
   border-color: #1f4a6d;
 }
 
+#btn_toggleSettingsChevron strong {
+  display: inline-block;
+  transition: transform 180ms ease;
+  transform: rotate(0deg);
+}
+
+#btn_toggleSettingsChevron[aria-expanded="false"] strong {
+  transform: rotate(180deg);
+}
+
 #settings_menu_panel .card {
   margin-top: 0 !important;
   border-top-left-radius: 0;
@@ -1646,8 +1656,8 @@ div#displays
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0ad4e;
-  color: #111;
+  background: rgba(255, 255, 255, 0.34);
+  color: rgba(255, 255, 255, 0.74);
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
@@ -1660,24 +1670,16 @@ div#displays
 }
 
 .fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:hover,
-.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within,
 .fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:hover,
-.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within,
 .planning-page #map_overlay_left_tools.css_map_overlay_left_tools:hover,
-.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within,
-.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover,
-.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within {
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover {
   width: 120px;
 }
 
 .fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:hover::before,
-.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within::before,
 .fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:hover::before,
-.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within::before,
 .planning-page #map_overlay_left_tools.css_map_overlay_left_tools:hover::before,
-.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within::before,
-.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover::before,
-.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within::before {
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover::before {
   opacity: 0;
 }
 
@@ -1692,13 +1694,9 @@ div#displays
 }
 
 .fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:hover .btn,
-.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within .btn,
 .fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:hover .btn,
-.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within .btn,
 .planning-page #map_overlay_left_tools.css_map_overlay_left_tools:hover .btn,
-.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within .btn,
-.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover .btn,
-.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within .btn {
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover .btn {
   opacity: 1;
   transform: none;
   pointer-events: auto;
