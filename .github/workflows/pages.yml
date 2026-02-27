@@ -25,14 +25,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # Don't enable npm cache unless you commit a lockfile
-          # cache: npm
 
       - name: Install dependencies
         run: npm install
 
       - name: Build (ignore lint warnings in CI)
         run: CI=false npm run build
+
+      # ✅ Force config.json into the output that GitHub Pages serves
+      - name: Ensure runtime config is deployed
+        run: |
+          cp -f public/config.json build/config.json
+          touch build/.nojekyll
+          echo "---- build root ----"
+          ls -la build | sed -n '1,120p'
+          echo "---- config.json ----"
+          cat build/config.json | head -c 4000
+          echo
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
