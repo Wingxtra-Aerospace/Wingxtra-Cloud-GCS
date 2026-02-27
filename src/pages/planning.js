@@ -34,9 +34,7 @@ const Planning = () => {
 
 	return (
 		<div className="planning-page">
-			<div id="rowheader" className="row mt-0 me-0 mw-0 mb-5">
-				<ClssHeaderControl />
-			</div>
+			<ClssHeaderControl />
 
 			<div id='mainBody' className='css_mainbody' >
 				<div id="row_1" className="col-8">
@@ -57,7 +55,7 @@ const Planning = () => {
 									href="./home"
 									title="Return to Fly View"
 								>
-									<strong className="ms-1">Fly View</strong>
+									<strong className="ms-1">Fly</strong>
 								</a>
 							</div>
 
@@ -66,7 +64,7 @@ const Planning = () => {
 								<button
 									type="button"
 									id="btn_toggleMapMode"
-									className="btn btn-secondary btn-sm bi bi-badge-3d"
+									className="btn btn-warning btn-sm bi bi-badge-3d"
 									title="Switch to 3D map (3D: Shift+Click add waypoint, click waypoint to edit)"
 									onClick={() => fn_toggleMapMode()}
 								>

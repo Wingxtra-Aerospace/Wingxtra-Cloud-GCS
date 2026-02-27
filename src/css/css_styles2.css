@@ -1314,6 +1314,19 @@ div#displays
   overflow: hidden;
 }
 
+#div_video_control > .container-fluid.localcontainer.css_no_camera_state {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#div_video_control .css_no_camera_message {
+  text-align: center;
+  width: 100%;
+}
+
 /* Keep header and control panel at content height; give the rest to video */
 #div_video_control .css_videoScreen > h4,
 #div_video_control #css_video_ctrl_panel {
@@ -1482,7 +1495,7 @@ div#displays
 #main_btn_group .css_cockpit_datetime {
   position: fixed;
   top: 10px;
-  right: 90px;
+  right: 108px;
   z-index: 1201;
   background: rgba(9, 22, 38, 0.92);
   border: 1px solid #1f4a6d;
@@ -1516,10 +1529,12 @@ div#displays
 .css_map_overlay_right_tools .btn {
   pointer-events: auto;
   min-width: 120px;
+  border-radius: 0 !important;
 }
 
-#btn_missionPlanner {
-  min-width: 92px !important;
+#btn_missionPlanner,
+#btn_flyView {
+  min-width: 120px !important;
 }
 
 /* Keep map controls over map and hide Leaflet zoom +/- */
@@ -1587,6 +1602,106 @@ div#displays
 .css_map_overlay_bottom_left_tools .btn {
   pointer-events: auto;
   min-width: 120px;
+  border-radius: 0 !important;
+}
+
+/* Fly view: place map action buttons flush to map border corners */
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools {
+  top: 6px;
+  left: 5px;
+}
+
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools {
+  top: 6px;
+  right: 5px;
+  left: auto;
+  align-items: flex-end;
+}
+
+.fly-view-page #map_overlay_bottom_left_tools.css_map_overlay_bottom_left_tools {
+  left: 5px;
+  bottom: 14px;
+}
+
+/* Fly + Planner: collapse top map buttons into edge tabs, expand on hover */
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools {
+  width: 22px;
+  min-height: 30px;
+  overflow: hidden;
+  pointer-events: auto;
+  gap: 0;
+  transition: width 180ms ease;
+}
+
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools::before,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools::before,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools::before,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools::before {
+  content: ">";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0ad4e;
+  color: #111;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools::before,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools::before {
+  content: "<";
+}
+
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:hover,
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:hover,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:hover,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within {
+  width: 120px;
+}
+
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:hover::before,
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within::before,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:hover::before,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within::before,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:hover::before,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within::before,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover::before,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within::before {
+  opacity: 0;
+}
+
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools .btn,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools .btn,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools .btn,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools .btn {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 140ms ease, transform 180ms ease;
+  pointer-events: none;
+}
+
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:hover .btn,
+.fly-view-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within .btn,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:hover .btn,
+.fly-view-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within .btn,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:hover .btn,
+.planning-page #map_overlay_left_tools.css_map_overlay_left_tools:focus-within .btn,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:hover .btn,
+.planning-page #map_overlay_right_tools.css_map_overlay_right_tools:focus-within .btn {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }
 
 /* Camera stream overlays map instead of replacing it */

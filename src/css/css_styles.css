@@ -1039,8 +1039,11 @@ padding-left: 5px
   color: var(--bs-body-color) !important;
 }
 
-.txt-theme-aware-navbar .navbar-brand:hover {
-  color: var(--bs-navbar-hover-color, var(--bs-link-hover-color)) !important;
+.txt-theme-aware-navbar .navbar-brand:hover,
+.txt-theme-aware-navbar .navbar-brand:focus {
+  color: var(--bs-body-color) !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
 }
 
 /* Remove borders from fixed header */
@@ -1492,4 +1495,27 @@ button.btn-outline-theme-aware:not(.hidden):disabled,
   border: 2px solid #ffffff;
   transform: rotate(-45deg);
   box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+
+.css_map3d_brand_attribution {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 1300;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.58);
+  color: rgba(17, 17, 17, 0.92);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  user-select: none;
+  pointer-events: none;
+}
+
+#div_map3d_view .mapboxgl-ctrl-bottom-left,
+#div_map3d_view .mapboxgl-ctrl-logo,
+#div_map3d_view .mapboxgl-ctrl-attrib,
+#div_map3d_view .mapboxgl-ctrl-attrib-button {
+  display: none !important;
 }

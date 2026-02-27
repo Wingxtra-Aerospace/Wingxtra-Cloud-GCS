@@ -26,6 +26,7 @@ class CLeafLetAndruavMap {
         this.m_markGuided = null;
         this.m_urlSyncEnabled = false;
         this.m_suppressHashUpdate = false;
+        this.m_brandAttributionElement = null;
 
     };
 
@@ -123,19 +124,33 @@ class CLeafLetAndruavMap {
 
     }
 
+    fn_ensureBrandAttribution() {
+        if (this.m_Map == null) return;
+
+        const container = this.m_Map.getContainer();
+        if (!container) return;
+
+        if (!this.m_brandAttributionElement || !container.contains(this.m_brandAttributionElement)) {
+            const el = document.createElement('div');
+            el.className = 'css_map3d_brand_attribution';
+            el.setAttribute('aria-hidden', 'true');
+            container.appendChild(el);
+            this.m_brandAttributionElement = el;
+        }
+
+        this.m_brandAttributionElement.textContent = `© ${js_siteConfig.CONST_TITLE || 'Nexus'}`;
+    }
+
 
     /**
     * Handle map initialization onLoad.
     */
     fn_initMap(p_mapelement) {
-        let v_site_copyright;
-         v_site_copyright = '&copy; <a href="' + (js_siteConfig.CONST_HOME_URL || '#') + '">' + (js_siteConfig.CONST_TITLE || 'Map') + '</a>';
-
-
         this.m_Map = L.map(p_mapelement, {
             center: [5.6037, -0.1870],
             zoom: 11,
-            doubleClickZoom: false // Disable the default double-click zoom
+            doubleClickZoom: false, // Disable the default double-click zoom
+            attributionControl: false
         });
         
         // Validate tile layer URL before using
@@ -147,9 +162,10 @@ class CLeafLetAndruavMap {
         
         L.tileLayer(tileUrl, {
                 maxZoom: 22,
-                attribution: v_site_copyright,
                 id: 'mapbox.streets'
             }).addTo(this.m_Map);
+
+        this.fn_ensureBrandAttribution();
         
 
         

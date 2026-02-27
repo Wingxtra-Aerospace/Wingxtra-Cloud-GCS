@@ -22,6 +22,24 @@ class CAndruavMap3D {
         this.m_altitudePathOverlaySvg = null;
         this.m_lastMissionPlans = null;
         this.m_lastActiveMissionId = null;
+        this.m_brandAttributionElement = null;
+    }
+
+    fn_ensureBrandAttribution() {
+        if (!this.m_map) return;
+
+        const container = this.m_map.getContainer();
+        if (!container) return;
+
+        if (!this.m_brandAttributionElement || !container.contains(this.m_brandAttributionElement)) {
+            const el = document.createElement('div');
+            el.className = 'css_map3d_brand_attribution';
+            el.setAttribute('aria-hidden', 'true');
+            container.appendChild(el);
+            this.m_brandAttributionElement = el;
+        }
+
+        this.m_brandAttributionElement.textContent = `© ${js_siteConfig.CONST_TITLE || 'Nexus'}`;
     }
 
     async fn_loadMapboxSdk() {
@@ -569,8 +587,11 @@ class CAndruavMap3D {
             zoom: 11.5,
             pitch: 45,
             bearing: 0,
-            antialias: true
+            antialias: true,
+            attributionControl: false
         });
+
+        this.fn_ensureBrandAttribution();
 
         this.m_map.on('style.load', () => {
             this.fn_applyTerrain();

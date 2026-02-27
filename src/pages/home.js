@@ -38,7 +38,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div>
+    <div className="fly-view-page">
       <ClssHeaderControl />
 
       <div id="mainBody" className="row css_mainbody">
@@ -59,7 +59,7 @@ const Home = () => {
               <div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
                 <a
                   id="btn_missionPlanner"
-                  className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
+                  className="btn btn-sm btn-warning bi bi-sign-turn-slight-right-fill"
                   href="./mapeditor"
                   title="Mission Planner"
                 >
@@ -71,7 +71,7 @@ const Home = () => {
                 <button
                   type="button"
                   id="btn_toggleMapMode"
-                  className="btn btn-secondary btn-sm bi bi-badge-3d"
+                  className="btn btn-warning btn-sm bi bi-badge-3d"
                   title="Toggle 2D/3D map"
                   onClick={() => fn_toggleMapMode()}
                 >
