@@ -12,7 +12,6 @@ import * as js_common from '../../js/js_common.js'
 
 import {fn_VIDEO_login, fn_VIDEO_Record, fn_gotoUnit_byPartyID} from '../../js/js_main.js';
 
-const jQuery = $;
 class ClssCameraDevice extends React.Component {
 
     constructor ()

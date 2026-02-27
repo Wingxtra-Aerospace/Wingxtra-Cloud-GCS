@@ -1,5 +1,4 @@
 import '../css/bootstrap.min.css';  // my theme
-import $ from 'jquery';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.pm/dist/leaflet.pm.css';
 import '../css/bootstrap-icons/font/bootstrap-icons.css'
@@ -19,30 +18,21 @@ import ClssHeaderControl from '../components/jsc_header'
 import ClssFooterControl from '../components/jsc_footer'
 import ClssAndruavUnitList from '../components/unit_controls/jsc_unitControlMainList.jsx'
 import ClssMain_Control_Buttons from '../components/planning/jsc_ctrl_main_control_buttons.jsx'
-import { fn_on_ready, fn_reset_on_ready, fn_showMap3D, fn_toggleMapMode } from '../js/js_main'
+import { fn_on_ready, fn_showMap3D, fn_toggleMapMode } from '../js/js_main'
 
 
 
-const jQuery = $;
 const Planning = () => {
 	const { t } = useTranslation('home'); // Use home namespace
-	const navigate = useNavigate();
 
 
 	js_globals.CONST_MAP_EDITOR = true;
 
 	useEffect(() => {
-		fn_reset_on_ready();
 		fn_on_ready();
 		fn_showMap3D();
 	},
 	[]);
-
-	const fn_returnToFlyView = () => {
-		const storedReturnUrl = sessionStorage.getItem('flyViewReturnUrl');
-		sessionStorage.removeItem('flyViewReturnUrl');
-		window.location.assign(storedReturnUrl || `${window.location.origin}/#/`);
-	};
 
 	return (
 		<div className="planning-page">
@@ -63,15 +53,14 @@ const Planning = () => {
 							</div>
 
 							<div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-								<button
+								<a
 									id="btn_flyView"
-									type="button"
 									className="btn btn-sm btn-warning bi bi-airplane-fill"
+									href="./home"
 									title="Return to Fly View"
-									onClick={fn_returnToFlyView}
 								>
 									<strong className="ms-1">Fly View</strong>
-								</button>
+								</a>
 							</div>
 
 

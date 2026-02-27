@@ -1,8 +1,8 @@
 import * as js_siteConfig from '../js_siteConfig.js';
 import { js_andruavAuth } from '../js_andruav_auth.js';
 
-const DELIVERY_SERVICE_BASE_URL = (import.meta.env.VITE_WINGXTRA_DELIVERY_SERVICE_URL || '').replace(/\/$/, '');
-const DELIVERY_OPS_API_KEY = import.meta.env.VITE_WINGXTRA_DELIVERY_OPS_API_KEY || '';
+const DELIVERY_SERVICE_BASE_URL = (process.env.REACT_APP_WINGXTRA_DELIVERY_SERVICE_URL || '').replace(/\/$/, '');
+const DELIVERY_OPS_API_KEY = process.env.REACT_APP_WINGXTRA_DELIVERY_OPS_API_KEY || '';
 
 function fn_buildUrl(path, query = {}) {
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
@@ -45,7 +45,7 @@ function fn_buildAuthHeaders() {
 
 async function fn_deliveryRequest(path, { method = 'GET', body, query } = {}) {
     if (!DELIVERY_SERVICE_BASE_URL) {
-        throw new Error('Delivery service URL is not configured. Set VITE_WINGXTRA_DELIVERY_SERVICE_URL.');
+        throw new Error('Delivery service URL is not configured. Set REACT_APP_WINGXTRA_DELIVERY_SERVICE_URL.');
     }
 
     const res = await fetch(fn_buildUrl(path, query), {

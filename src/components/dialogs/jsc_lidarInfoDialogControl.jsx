@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import 'jquery-ui-dist/jquery-ui.min.js';
 
 import React    from 'react';
@@ -10,7 +9,6 @@ import {fn_gotoUnit_byPartyID} from '../../js/js_main.js'
 
 import {ClssCtrlLidarDevice} from '../gadgets/jsc_ctrl_lidar_device.jsx'
 
-const jQuery = $;
 export default class ClssLidarInfoDialog extends React.Component
 {
     constructor()

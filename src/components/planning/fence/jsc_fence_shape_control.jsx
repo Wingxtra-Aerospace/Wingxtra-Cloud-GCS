@@ -8,7 +8,6 @@ import * as js_common from '../../../js/js_common.js'
 import * as js_andruavMessages from '../../../js/protocol/js_andruavMessages'
 
 
-const jQuery = $;
 const DEFAULT_DISTANCE = 10;
 class ClssFenceAction extends React.Component {
 

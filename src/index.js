@@ -1,36 +1,55 @@
-import $ from "jquery";
-window.$ = $;
-window.jQuery = $;
-globalThis.$ = $;
-globalThis.jQuery = $;
+import { fn_loadConfig } from './js/js_siteConfig.js';
 
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { I18nextProvider } from 'react-i18next';
 
-async function startApp() {
-  const [{ default: AppRouter }, { default: i18n }, { fn_loadConfig }] = await Promise.all([
-    import('./AppRouter.jsx'),
-    import('./js/i18n.js'),
-    import('./js/js_siteConfig.js'),
-  ]);
+async function fn_startApp() {
 
   await fn_loadConfig();
 
-  const rootElement = document.getElementById('root');
-  if (!rootElement) {
-    throw new Error('Root element with id "root" was not found.');
+  const React = (await import('react')).default;
+  const ReactDOM = await import('react-dom/client');
+  const { BrowserRouter, Routes, Route } = await import('react-router-dom');
+  const { I18nextProvider } = await import('react-i18next');
+  const i18n = (await import('./js/i18n')).default;
+
+  const Layout = (await import('./pages/Layout')).default;
+  const Home = (await import('./pages/home')).default;
+  const Planning = (await import('./pages/planning')).default;
+  const NoPage = (await import('./pages/NoPage')).default;
+  const GamePadTesterPage = (await import('./pages/gamepadTester')).default;
+  const DebugPage = (await import('./pages/debug')).default;
+  const DeliveryPage = (await import('./pages/delivery')).default;
+
+
+  function App2() {
+
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="index.html" element={<Home />} />
+            <Route path="index" element={<Home />} />
+            <Route path="home" element={<Home />} />
+            <Route path="webclient" element={<Home />} />
+            <Route path="mapeditor" element={<Planning />} />
+            <Route path="gamepad" element={<GamePadTesterPage />} />
+            <Route path="debug" element={<DebugPage />} />
+            <Route path="delivery/*" element={<DeliveryPage />} />
+            <Route path="*" element={<NoPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    );
   }
 
-  createRoot(rootElement).render(
-    React.createElement(
-      I18nextProvider,
-      { i18n },
-      React.createElement(AppRouter),
-    ),
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <I18nextProvider i18n={i18n}>
+      <App2 />
+    </I18nextProvider>
   );
 }
 
-startApp().catch((error) => {
-  console.error('Fatal startup error:', error);
-});
+
+fn_startApp();

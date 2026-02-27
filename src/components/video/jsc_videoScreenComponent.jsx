@@ -24,7 +24,6 @@ import ClssCVideoHUDOverlay from './jsc_videoHUDOverlayComponent.jsx'
 
 import ClssCVideoTrackerLayer from './jsc_videoTrackerLayer.jsx'
 
-const jQuery = $;
 export default class ClssCVideoScreen extends React.Component {
 
     constructor() {

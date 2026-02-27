@@ -1,5 +1,4 @@
 import React from 'react';
-import $ from 'jquery';
 import Draggable from "react-draggable";
 import * as js_siteConfig from '../../js/js_siteConfig.js'
 
@@ -9,7 +8,6 @@ import { js_eventEmitter } from '../../js/js_eventEmitter.js'
 import {fn_helpPage, fn_gotoUnit_byPartyID} from '../../js/js_main.js';
 
 
-const jQuery = $;
 class ClssServoUnit extends React.Component {
 
     constructor(props) {

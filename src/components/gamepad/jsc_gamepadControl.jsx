@@ -17,7 +17,6 @@ import { ClssGamePadButton } from './jsc_gamepad_button.jsx';
 import {ClssSingleAxisProgressControl} from './jsc_gamepad_single_axis.jsx';
 
 
-const jQuery = $;
 class ClssGamePadAxesControl extends React.Component {
 
     constructor(props)

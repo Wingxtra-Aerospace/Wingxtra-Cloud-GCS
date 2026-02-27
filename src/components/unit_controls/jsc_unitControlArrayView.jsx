@@ -23,7 +23,6 @@ import {ClssCtrlBattery} from '../gadgets/jsc_ctrl_battery.jsx'
 
 import {hlp_getFlightMode, fn_gotoUnit_byPartyID} from '../../js/js_main.js'
 
-const jQuery = $;
 class ClssAndruavUnitDroneHeader extends React.Component{
 
     constructor()

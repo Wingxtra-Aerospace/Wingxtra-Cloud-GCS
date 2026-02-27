@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import * as js_siteConfig from '../js_siteConfig'
 
-const jQuery = $;
 export function fn_on_ready() {
 
 	$(function () {

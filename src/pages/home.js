@@ -1,5 +1,4 @@
 import '../css/bootstrap.min.css';
-import $ from 'jquery';
 import 'leaflet/dist/leaflet.css';
 import '../css/bootstrap-icons/font/bootstrap-icons.css';
 import '../css/css_styles.css';
@@ -29,23 +28,15 @@ import ClssAndruavUnitListArray from '../components/unit_controls/jsc_unitContro
 import ClssUnitParametersList from '../components/dialogs/jsc_unitParametersList.jsx';
 import ClssConfigGenerator from '../components/jsc_config_generator.jsx'
 import { ClssCVideoControl } from '../components/video/jsc_videoDisplayComponent.jsx';
-import { fn_on_ready, fn_reset_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
+import { fn_on_ready, fn_showSettings, fn_toggleMapMode, fn_showVideoMainTab } from '../js/js_main';
 
-const jQuery = $;
 const Home = () => {
   const { t } = useTranslation('home'); // Use home namespace
-  const navigate = useNavigate();
 
   useEffect(() => {
     js_globals.CONST_MAP_EDITOR = false;
-    fn_reset_on_ready();
     fn_on_ready();
   }, []);
-
-  const fn_openPlanningWithReturn = () => {
-    sessionStorage.setItem('flyViewReturnUrl', window.location.href);
-    window.location.assign('/#/planning');
-  };
 
   return (
     <div>
@@ -67,15 +58,14 @@ const Home = () => {
               </div>
 
               <div id="map_overlay_left_tools" className="css_map_overlay_left_tools">
-                <button
+                <a
                   id="btn_missionPlanner"
-                  type="button"
                   className="btn btn-sm btn-primary bi bi-sign-turn-slight-right-fill"
+                  href="./mapeditor"
                   title="Mission Planner"
-                  onClick={fn_openPlanningWithReturn}
                 >
                   <strong className="ms-1">Plan</strong>
-                </button>
+                </a>
               </div>
 
               <div id="map_overlay_right_tools" className="css_map_overlay_right_tools">
