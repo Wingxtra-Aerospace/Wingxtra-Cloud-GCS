@@ -41,12 +41,8 @@ class CAndruavAuth {
         window._localserverPort = 9211;
 
         this._m_ver = '5.0.0';
-        this.m_auth_ip = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_IP
-            : js_siteConfig.CONST_PROD_MODE_IP;
-        this._m_auth_port = js_siteConfig.CONST_TEST_MODE
-            ? js_siteConfig.CONST_TEST_MODE_PORT
-            : js_siteConfig.CONST_PROD_MODE_PORT;
+        this.m_auth_ip = '';
+        this._m_auth_port = '';
         this._m_auth_ports = this._m_auth_port; // Legacy support
         this._m_perm = 0;
         this._m_permissions_ = '';
@@ -224,21 +220,34 @@ class CAndruavAuth {
      * @returns {string} The constructed URL.
      */
     #getBaseUrl(path) {
+        const { host, port } = this.#getAuthServerConfig();
         const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
         if (protocol === 'http' && window.location.hostname !== 'localhost') {
             console.warn('Using HTTP in production—switch to HTTPS for security');
         }
-        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_WEB_FUNCTION}${path}`;
+        return `${protocol}://${host}:${port}${js_andruavMessages.CONST_WEB_FUNCTION}${path}`;
+    }
+
+    #getAuthServerConfig() {
+        const isTestMode = js_siteConfig.CONST_TEST_MODE === true;
+        const host = isTestMode ? js_siteConfig.CONST_TEST_MODE_IP : js_siteConfig.CONST_PROD_MODE_IP;
+        const port = isTestMode ? js_siteConfig.CONST_TEST_MODE_PORT : js_siteConfig.CONST_PROD_MODE_PORT;
+
+        this.m_auth_ip = host;
+        this._m_auth_port = port;
+
+        return { host, port };
     }
 
 
     #getHealthURL()
     {
+        const { host, port } = this.#getAuthServerConfig();
         const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
         if (protocol === 'http' && window.location.hostname !== 'localhost') {
             console.warn('Using HTTP in production—switch to HTTPS for security');
         }
-        return `${protocol}://${this.m_auth_ip}:${this._m_auth_port}${js_andruavMessages.CONST_HEALTH_FUNCTION}`;
+        return `${protocol}://${host}:${port}${js_andruavMessages.CONST_HEALTH_FUNCTION}`;
     }
 
     /**
