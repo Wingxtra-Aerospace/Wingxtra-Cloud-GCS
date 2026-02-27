@@ -9,7 +9,6 @@ import { js_localStorage } from '../../js/js_localStorage';
 import { js_eventEmitter } from '../../js/js_eventEmitter';
 import ClssCtrlSWARMFormation from './jsc_mctrl_swarm_formation.jsx';
 
-const jQuery = $;
 /**
  * props:
  * p_unit

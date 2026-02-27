@@ -1,6 +1,5 @@
 
 import React    from 'react';
-import $ from 'jquery';
 import L from 'leaflet';
 
 import {js_leafletmap} from '../../../js/js_leafletmap.js'
@@ -10,7 +9,6 @@ import * as js_andruavMessages from '../../../js/protocol/js_andruavMessages'
 import {CFieldChecked} from '../../micro_gadgets/jsc_mctrl_field_check.jsx'
 
 
-const jQuery = $;
 export class CWayPointAction extends React.Component {
 
     constructor()

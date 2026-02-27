@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import 'jquery-ui-dist/jquery-ui.min.js';
 
 import React    from 'react';
@@ -11,7 +10,6 @@ import * as js_andruavUnit from '../../js/js_andruavUnit.js'
 
 import {fn_VIDEO_login, fn_VIDEO_Record, fn_gotoUnit_byPartyID, toggleRecrodingVideo} from '../../js/js_main.js';
 
-const jQuery = $;
 class ClssStreamChannel extends React.Component {
 
     constructor (props)

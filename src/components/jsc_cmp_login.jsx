@@ -10,7 +10,6 @@ import { js_localStorage } from '../js/js_localStorage'
 
 import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 
-const jQuery = $;
 // Registration and Regeneration Control
 export default class ClssLoginControl extends React.Component {
     constructor() {

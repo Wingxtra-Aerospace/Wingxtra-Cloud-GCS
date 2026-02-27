@@ -26,7 +26,6 @@ import {ClssAndruavUnitDrone} from './jsc_unit_control_drone.jsx'
 
 
 
-const jQuery = $;
 /**
  * 
  * Properties:

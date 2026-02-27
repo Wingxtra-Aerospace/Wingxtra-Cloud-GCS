@@ -1,5 +1,4 @@
 
-import $ from 'jquery';
 import 'jquery-ui-dist/jquery-ui.min.js';
 
 import React    from 'react';
@@ -9,7 +8,6 @@ import {Class_Radar_Screen} from '../micro_gadgets/jsc_mctrl_radar_screen.jsx'
 import {EVENTS as js_event} from '../../js/js_eventList.js'
 import {js_eventEmitter} from '../../js/js_eventEmitter.js'
 
-const jQuery = $;
 export class ClssCtrlLidarDevice extends React.Component {
     
     constructor()

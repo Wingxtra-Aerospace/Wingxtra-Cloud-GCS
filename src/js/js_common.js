@@ -9,7 +9,6 @@
 import $ from 'jquery';
 import Modal from 'bootstrap/js/dist/modal';
 import * as  js_siteConfig from './js_siteConfig.js'
-const jQuery = $;
 
 
 
